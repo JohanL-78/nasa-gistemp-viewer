@@ -436,6 +436,9 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
   const [overlayTexture, setOverlayTexture] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastLoadedKey, setLastLoadedKey] = useState('');
+  
+  // ✅ Identifiant unique pour cette instance
+  const instanceId = useRef(Math.random().toString(36).substr(2, 9)).current;
 
   useFrame(() => {
     if (autoRotate && groupRef.current) {
@@ -446,35 +449,79 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
   useEffect(() => {
     const currentKey = `${year}_${month}`;
     if (!baseMeshRef.current || isLoading || lastLoadedKey === currentKey) return;
+    
+    console.log(`🔄 [${instanceId}] Chargement: ${currentKey}`);
     setIsLoading(true);
-    const loader = new THREE.TextureLoader();
-    const path = `/textures/gistemp_${currentKey}.png`;
+    
+    // ✅ SOLUTION RADICALE: Désactiver complètement le cache de Three.js
+    const manager = new THREE.LoadingManager();
+    const loader = new THREE.TextureLoader(manager);
+    
+    // Forcer un URL unique avec timestamp + instance ID
+    const uniqueUrl = `/textures/gistemp_${currentKey}.png?instance=${instanceId}&t=${Date.now()}`;
 
     loader.load(
-      path,
+      uniqueUrl,
       (texture) => {
+        console.log(`✅ [${instanceId}] Texture chargée: ${currentKey}`);
+        
+        // ✅ Forcer les paramètres de texture à chaque fois
         texture.magFilter = THREE.LinearFilter;
         texture.minFilter = THREE.LinearMipMapLinearFilter;
+        texture.wrapS = THREE.ClampToEdgeWrapping;
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+        texture.flipY = true;
+        texture.needsUpdate = true;
+        
+        // ✅ Marquer la texture comme unique pour éviter le partage GPU
+        texture.uuid = THREE.MathUtils.generateUUID();
+        
         setTemperatureTexture(texture);
+        
         if (baseMeshRef.current) {
           const material = baseMeshRef.current.material;
+          
+          // Nettoyer l'ancienne texture
+          if (material.map) {
+            material.map.dispose();
+          }
+          
           material.map = texture;
-          material.color.setScalar(0.5 * 1.2);
           material.needsUpdate = true;
+          
+          // ✅ CRUCIAL: Forcer le renouvellement du matériau aussi
+          material.uuid = THREE.MathUtils.generateUUID();
         }
+        
         setLastLoadedKey(currentKey);
         setIsLoading(false);
       },
       undefined,
-      () => {
-        loader.load('/textures/default_earth.jpg', (fallbackTex) => {
+      (error) => {
+        console.warn(`⚠️ [${instanceId}] Erreur ${currentKey}, fallback...`);
+        
+        const fallbackUrl = `/textures/default_earth.jpg?instance=${instanceId}&t=${Date.now()}`;
+        loader.load(fallbackUrl, (fallbackTex) => {
+          fallbackTex.magFilter = THREE.LinearFilter;
+          fallbackTex.minFilter = THREE.LinearMipMapLinearFilter;
+          fallbackTex.wrapS = THREE.ClampToEdgeWrapping;
+          fallbackTex.wrapT = THREE.ClampToEdgeWrapping;
+          fallbackTex.flipY = true;
+          fallbackTex.needsUpdate = true;
+          fallbackTex.uuid = THREE.MathUtils.generateUUID();
+          
           setTemperatureTexture(fallbackTex);
+          
           if (baseMeshRef.current) {
             const material = baseMeshRef.current.material;
+            if (material.map) {
+              material.map.dispose();
+            }
             material.map = fallbackTex;
-            material.color.setScalar(0.5 * 1.2);
             material.needsUpdate = true;
+            material.uuid = THREE.MathUtils.generateUUID();
           }
+          
           setLastLoadedKey(currentKey);
           setIsLoading(false);
         });
@@ -490,37 +537,60 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
           oni: res?.oni ?? null,
         });
       }).catch(error => {
-        console.error('Error loading temperature data:', error);
+        console.error(`❌ [${instanceId}] Erreur données:`, error);
         setIsLoading(false);
       });
     }
-  }, [year, month]);
+  }, [year, month, instanceId]);
 
   useEffect(() => {
     if (overlayTexture) return;
-    const loader = new THREE.TextureLoader();
-    loader.load('/textures/overlay.png', (overlayTex) => {
+    
+    const manager = new THREE.LoadingManager();
+    const loader = new THREE.TextureLoader(manager);
+    const overlayUrl = `/textures/overlay.png?instance=${instanceId}&t=${Date.now()}`;
+    
+    loader.load(overlayUrl, (overlayTex) => {
       overlayTex.magFilter = THREE.LinearFilter;
       overlayTex.minFilter = THREE.LinearMipMapLinearFilter;
       overlayTex.anisotropy = 8;
+      overlayTex.wrapS = THREE.ClampToEdgeWrapping;
+      overlayTex.wrapT = THREE.ClampToEdgeWrapping;
+      overlayTex.needsUpdate = true;
+      overlayTex.uuid = THREE.MathUtils.generateUUID();
       setOverlayTexture(overlayTex);
     });
-  }, []);
+  }, [instanceId]);
 
   useEffect(() => {
     if (globeRef) {
       globeRef.current = {
         group: groupRef.current,
-        base: baseMeshRef.current
+        base: baseMeshRef.current,
+        instanceId: instanceId
       };
     }
-  }, [globeRef]);
+  }, [globeRef, instanceId]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      console.log(`🗑️ [${instanceId}] Nettoyage`);
+      if (temperatureTexture) {
+        temperatureTexture.dispose();
+      }
+      if (overlayTexture) {
+        overlayTexture.dispose();
+      }
+    };
+  }, [temperatureTexture, overlayTexture, instanceId]);
 
   return (
     <group ref={groupRef} rotation-x={0.2} visible={isVisible}>
       <mesh ref={baseMeshRef} rotation-x={0.2}>
         <sphereGeometry args={[1, 128, 64]} />
         <meshLambertMaterial
+          key={`material-${instanceId}-${year}-${month}`} // ✅ Key unique pour le matériau JSX
           transparent
           color={0xffffff}
           emissive={0x333333}
@@ -531,6 +601,7 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
         <mesh rotation-x={0.2}>
           <sphereGeometry args={[1.001, 128, 64]} />
           <meshBasicMaterial
+            key={`overlay-${instanceId}`} // ✅ Key unique pour l'overlay aussi
             map={overlayTexture}
             transparent
             opacity={0.4}
@@ -571,22 +642,26 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
   const globeRefB = useRef(null);
 
   const displayTemps = (temps) => {
-  console.log('🧪 Vérif affichage ONI:', temps.oni, typeof temps.oni);
+    return (
+      <div style={{ fontSize: '0.85rem', marginTop: '1rem', color: '#ccc' }}>
+        <p>🌍 Global: {temps.global !== null ? temps.global.toFixed(2) + '°C' : 'N/A'}</p>
+        <p>🧊 Nord: {temps.north !== null ? temps.north.toFixed(2) + '°C' : 'N/A'}</p>
+        <p>🏔️ Sud: {temps.south !== null ? temps.south.toFixed(2) + '°C' : 'N/A'}</p>
+        <p>🌊 ONI: {typeof temps.oni === 'number' ? temps.oni.toFixed(2) : 'N/A'}</p>
+      </div>
+    );
+  };
 
-  return (
-    <div style={{ fontSize: '0.85rem', marginTop: '1rem', color: '#ccc' }}>
-      <p>🌍 Global: {temps.global !== null ? temps.global.toFixed(2) + '°C' : 'N/A'}</p>
-      <p>🧊 Nord: {temps.north !== null ? temps.north.toFixed(2) + '°C' : 'N/A'}</p>
-      <p>🏔️ Sud: {temps.south !== null ? temps.south.toFixed(2) + '°C' : 'N/A'}</p>
-      <p>🌊 ONI: {typeof temps.oni === 'number' ? temps.oni.toFixed(2) : 'N/A'}</p>
-    </div>
-  );
-};
-
+  // ✅ State stable pour éviter les re-renders infinis
+  const [renderKey, setRenderKey] = useState(0);
   
+  useEffect(() => {
+    setRenderKey(Date.now());
+  }, [compareMode]); // Seulement quand le mode change
 
-  const renderCanvas = (year, month, onLoad, refKey) => (
+  const renderCanvas = (year, month, onLoad, refKey, mode = 'solo') => (
     <Canvas
+      key={`canvas-${mode}-${year}-${month}-${renderKey}`}
       camera={{ position: [0, 0, 2.5], fov: 75 }}
       gl={{ antialias: true, alpha: true }}
       style={{ width: '100%', height: '50%' }}
@@ -594,6 +669,7 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
       <Suspense fallback={null}>
         <Scene>
           <Globe
+            key={`globe-${mode}-${year}-${month}-${renderKey}`}
             year={year}
             month={month}
             isVisible={true}
@@ -616,19 +692,18 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
     }}>
       {/* SIDEBAR */}
       <div style={{
-  minWidth: isMobile ? '100%' : '280px',      // fixe une taille minimale
-  maxWidth: isMobile ? '100%' : '320px',
-  background: '#111',
-  color: '#fff',
-  padding: '1rem',
-  boxShadow: isMobile ? '0 2px 10px rgba(0,0,0,0.3)' : '2px 0 10px rgba(0,0,0,0.3)',
-  zIndex: 5,
-  overflowY: 'auto',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-around'
-}}>
-
+        minWidth: isMobile ? '100%' : '280px',
+        maxWidth: isMobile ? '100%' : '320px',
+        background: '#111',
+        color: '#fff',
+        padding: '1rem',
+        boxShadow: isMobile ? '0 2px 10px rgba(0,0,0,0.3)' : '2px 0 10px rgba(0,0,0,0.3)',
+        zIndex: 5,
+        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-around'
+      }}>
         <div>
           <h3 style={{ marginBottom: '1rem' }}>📅 Période A</h3>
           <input type="text" value={selectedYearA} onChange={e => setSelectedYearA(e.target.value)} placeholder="Année" style={{ width: '100%', marginBottom: '0.5rem', padding: '0.5rem', background: '#222', color: '#fff', border: '1px solid #444' }} />
@@ -648,15 +723,14 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
 
       {/* CANVAS */}
       <div style={{
-  flexGrow: 1,                                 // ← prend le reste
-  minWidth: isMobile ? '100%' : '400px',       // ← ne descend jamais en dessous
-  maxWidth: '100%',
-  height: isMobile ? 'calc(100vh - 300px)' : '100vh',
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-}}>
-
+        flexGrow: 1,
+        minWidth: isMobile ? '100%' : '400px',
+        maxWidth: '100%',
+        height: isMobile ? 'calc(100vh - 300px)' : '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+      }}>
         <div style={{
           position: 'absolute',
           top: '1rem',
@@ -680,14 +754,20 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
 
         {compareMode ? (
           <>
-            {renderCanvas(selectedYearA, selectedMonthA, setTempsA, globeRefA)}
-            {renderCanvas(selectedYearB, selectedMonthB, setTempsB, globeRefB)}
+            {renderCanvas(selectedYearA, selectedMonthA, setTempsA, globeRefA, 'compare-a')}
+            {renderCanvas(selectedYearB, selectedMonthB, setTempsB, globeRefB, 'compare-b')}
           </>
         ) : (
-          <Canvas camera={{ position: [0, 0, 2.5], fov: 75 }} gl={{ antialias: true, alpha: true }} style={{ width: '100%', height: '100%' }}>
+          <Canvas 
+            key={`solo-${selectedYearA}-${selectedMonthA}-${renderKey}`}
+            camera={{ position: [0, 0, 2.5], fov: 75 }} 
+            gl={{ antialias: true, alpha: true }} 
+            style={{ width: '100%', height: '100%' }}
+          >
             <Suspense fallback={null}>
               <Scene>
                 <Globe
+                  key={`solo-globe-${selectedYearA}-${selectedMonthA}-${renderKey}`}
                   year={selectedYearA}
                   month={selectedMonthA}
                   isVisible={true}
@@ -703,8 +783,7 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
       </div>
     </div>
   );
-}
-=== ./lib/actions.js ===
+}=== ./lib/actions.js ===
 'use server';
 
 import { getTemperatureForDate, getOniIndex } from './data';
@@ -997,7 +1076,7 @@ const oniSeasonByMonth = {
 function getOniSeasonAndYear(year, month) {
   const season = oniSeasonByMonth[month];
   const y = parseInt(year, 10);
-  if (season === 'NDJ' || season === 'DJF') return { season, year: y - 1 };
+  if (season === 'NDJ') return { season, year: y - 1 };
   return { season, year: y };
 }
 

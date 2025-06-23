@@ -32,7 +32,6 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastLoadedKey, setLastLoadedKey] = useState('');
   
-  // ✅ Identifiant unique pour cette instance
   const instanceId = useRef(Math.random().toString(36).substr(2, 9)).current;
 
   useFrame(() => {
@@ -48,11 +47,8 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
     console.log(`🔄 [${instanceId}] Chargement: ${currentKey}`);
     setIsLoading(true);
     
-    // ✅ SOLUTION RADICALE: Désactiver complètement le cache de Three.js
     const manager = new THREE.LoadingManager();
     const loader = new THREE.TextureLoader(manager);
-    
-    // Forcer un URL unique avec timestamp + instance ID
     const uniqueUrl = `/textures/gistemp_${currentKey}.png?instance=${instanceId}&t=${Date.now()}`;
 
     loader.load(
@@ -60,31 +56,23 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
       (texture) => {
         console.log(`✅ [${instanceId}] Texture chargée: ${currentKey}`);
         
-        // ✅ Forcer les paramètres de texture à chaque fois
         texture.magFilter = THREE.LinearFilter;
         texture.minFilter = THREE.LinearMipMapLinearFilter;
         texture.wrapS = THREE.ClampToEdgeWrapping;
         texture.wrapT = THREE.ClampToEdgeWrapping;
         texture.flipY = true;
         texture.needsUpdate = true;
-        
-        // ✅ Marquer la texture comme unique pour éviter le partage GPU
         texture.uuid = THREE.MathUtils.generateUUID();
         
         setTemperatureTexture(texture);
         
         if (baseMeshRef.current) {
           const material = baseMeshRef.current.material;
-          
-          // Nettoyer l'ancienne texture
           if (material.map) {
             material.map.dispose();
           }
-          
           material.map = texture;
           material.needsUpdate = true;
-          
-          // ✅ CRUCIAL: Forcer le renouvellement du matériau aussi
           material.uuid = THREE.MathUtils.generateUUID();
         }
         
@@ -167,7 +155,6 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
     }
   }, [globeRef, instanceId]);
 
-  // Cleanup
   useEffect(() => {
     return () => {
       console.log(`🗑️ [${instanceId}] Nettoyage`);
@@ -185,7 +172,7 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
       <mesh ref={baseMeshRef} rotation-x={0.2}>
         <sphereGeometry args={[1, 128, 64]} />
         <meshLambertMaterial
-          key={`material-${instanceId}-${year}-${month}`} // ✅ Key unique pour le matériau JSX
+          key={`material-${instanceId}-${year}-${month}`}
           transparent
           color={0xffffff}
           emissive={0x333333}
@@ -196,7 +183,7 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
         <mesh rotation-x={0.2}>
           <sphereGeometry args={[1.001, 128, 64]} />
           <meshBasicMaterial
-            key={`overlay-${instanceId}`} // ✅ Key unique pour l'overlay aussi
+            key={`overlay-${instanceId}`}
             map={overlayTexture}
             transparent
             opacity={0.4}
@@ -219,6 +206,162 @@ const Scene = ({ children }) => (
     <directionalLight position={[0, -5, 0]} intensity={0.8} />
     {children}
   </>
+);
+
+// Nouveau composant pour les contrôles mobiles
+const MobileControls = ({ compareMode, setCompareMode, autoRotate, setAutoRotate }) => (
+  <div style={{
+    position: 'fixed',
+    bottom: '1rem',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: 20,
+    background: 'rgba(34, 34, 34, 0.95)',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '25px',
+    border: '1px solid #444',
+    color: '#fff',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+    display: 'flex',
+    gap: '1rem',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center'
+  }}>
+    <label style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '0.5rem',
+      fontSize: '0.9rem',
+      whiteSpace: 'nowrap'
+    }}>
+      <input 
+        type="checkbox" 
+        checked={compareMode} 
+        onChange={e => setCompareMode(e.target.checked)} 
+        style={{ accentColor: '#4a90e2' }} 
+      />
+      Comparaison
+    </label>
+    <label style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '0.5rem',
+      fontSize: '0.9rem',
+      whiteSpace: 'nowrap'
+    }}>
+      <input 
+        type="checkbox" 
+        checked={autoRotate} 
+        onChange={e => setAutoRotate(e.target.checked)} 
+        style={{ accentColor: '#4a90e2' }} 
+      />
+      Rotation
+    </label>
+  </div>
+);
+
+// Composant pour les contrôles desktop
+const DesktopControls = ({ compareMode, setCompareMode, autoRotate, setAutoRotate }) => (
+  <div style={{
+    position: 'absolute',
+    top: '1rem',
+    left: '1rem',
+    zIndex: 10,
+    background: '#222',
+    padding: '0.75rem 1rem',
+    borderRadius: '8px',
+    border: '1px solid #444',
+    color: '#fff'
+  }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+      <input type="checkbox" checked={compareMode} onChange={e => setCompareMode(e.target.checked)} style={{ accentColor: '#4a90e2' }} />
+      Mode comparaison
+    </label>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <input type="checkbox" checked={autoRotate} onChange={e => setAutoRotate(e.target.checked)} style={{ accentColor: '#4a90e2' }} />
+      Rotation automatique
+    </label>
+  </div>
+);
+
+// Nouveau composant pour les contrôles mobiles
+const MobileControls = ({ compareMode, setCompareMode, autoRotate, setAutoRotate }) => (
+  <div style={{
+    position: 'fixed',
+    bottom: '1rem',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: 20,
+    background: 'rgba(34, 34, 34, 0.95)',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '25px',
+    border: '1px solid #444',
+    color: '#fff',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+    display: 'flex',
+    gap: '1rem',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center'
+  }}>
+    <label style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '0.5rem',
+      fontSize: '0.9rem',
+      whiteSpace: 'nowrap'
+    }}>
+      <input 
+        type="checkbox" 
+        checked={compareMode} 
+        onChange={e => setCompareMode(e.target.checked)} 
+        style={{ accentColor: '#4a90e2' }} 
+      />
+      Comparaison
+    </label>
+    <label style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '0.5rem',
+      fontSize: '0.9rem',
+      whiteSpace: 'nowrap'
+    }}>
+      <input 
+        type="checkbox" 
+        checked={autoRotate} 
+        onChange={e => setAutoRotate(e.target.checked)} 
+        style={{ accentColor: '#4a90e2' }} 
+      />
+      Rotation
+    </label>
+  </div>
+);
+
+// Composant pour les contrôles desktop
+const DesktopControls = ({ compareMode, setCompareMode, autoRotate, setAutoRotate }) => (
+  <div style={{
+    position: 'absolute',
+    top: '1rem',
+    left: '1rem',
+    zIndex: 10,
+    background: '#222',
+    padding: '0.75rem 1rem',
+    borderRadius: '8px',
+    border: '1px solid #444',
+    color: '#fff'
+  }}>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+      <input type="checkbox" checked={compareMode} onChange={e => setCompareMode(e.target.checked)} style={{ accentColor: '#4a90e2' }} />
+      Mode comparaison
+    </label>
+    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <input type="checkbox" checked={autoRotate} onChange={e => setAutoRotate(e.target.checked)} style={{ accentColor: '#4a90e2' }} />
+      Rotation automatique
+    </label>
+  </div>
 );
 
 export default function CanvasWithControlsOverlay({ availableDates }) {
@@ -247,19 +390,18 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
     );
   };
 
-  // ✅ State stable pour éviter les re-renders infinis
   const [renderKey, setRenderKey] = useState(0);
   
   useEffect(() => {
     setRenderKey(Date.now());
-  }, [compareMode]); // Seulement quand le mode change
+  }, [compareMode]);
 
   const renderCanvas = (year, month, onLoad, refKey, mode = 'solo') => (
     <Canvas
       key={`canvas-${mode}-${year}-${month}-${renderKey}`}
       camera={{ position: [0, 0, 2.5], fov: 75 }}
       gl={{ antialias: true, alpha: true }}
-      style={{ width: '100%', height: '50%' }}
+      style={{ width: '100%', height: '100%' }}
     >
       <Suspense fallback={null}>
         <Scene>
@@ -278,6 +420,40 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
     </Canvas>
   );
 
+  // Styles pour la sidebar en mode mobile
+  const sidebarStyle = {
+    minWidth: isMobile ? '100%' : '280px',
+    maxWidth: isMobile ? '100%' : '320px',
+    background: '#111',
+    color: '#fff',
+    padding: isMobile ? '0.75rem' : '1rem',
+    boxShadow: isMobile ? '0 2px 10px rgba(0,0,0,0.3)' : '2px 0 10px rgba(0,0,0,0.3)',
+    zIndex: 5,
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: isMobile ? 'row' : 'column',
+    justifyContent: isMobile ? 'space-around' : 'space-around',
+    gap: isMobile ? '1rem' : '0',
+    maxHeight: isMobile ? '120px' : 'none'
+  };
+
+  // Styles pour les contrôles de période en mode mobile
+  const periodControlStyle = {
+    flex: isMobile ? '1' : 'none',
+    minWidth: isMobile ? '140px' : 'auto'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    marginBottom: '0.5rem',
+    padding: isMobile ? '0.4rem' : '0.5rem',
+    background: '#222',
+    color: '#fff',
+    border: '1px solid #444',
+    borderRadius: '4px',
+    fontSize: isMobile ? '0.85rem' : '1rem'
+  };
+
   return (
     <div style={{
       display: 'flex',
@@ -285,72 +461,128 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
       height: '100vh',
       width: '100%'
     }}>
-      {/* SIDEBAR */}
-      <div style={{
-        minWidth: isMobile ? '100%' : '280px',
-        maxWidth: isMobile ? '100%' : '320px',
-        background: '#111',
-        color: '#fff',
-        padding: '1rem',
-        boxShadow: isMobile ? '0 2px 10px rgba(0,0,0,0.3)' : '2px 0 10px rgba(0,0,0,0.3)',
-        zIndex: 5,
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-around'
-      }}>
-        <div>
-          <h3 style={{ marginBottom: '1rem' }}>📅 Période A</h3>
-          <input type="text" value={selectedYearA} onChange={e => setSelectedYearA(e.target.value)} placeholder="Année" style={{ width: '100%', marginBottom: '0.5rem', padding: '0.5rem', background: '#222', color: '#fff', border: '1px solid #444' }} />
-          <input type="text" value={selectedMonthA} onChange={e => setSelectedMonthA(e.target.value)} placeholder="Mois" style={{ width: '100%', padding: '0.5rem', background: '#222', color: '#fff', border: '1px solid #444' }} />
-          {displayTemps(tempsA)}
+      {/* SIDEBAR - Horizontal en mobile, vertical en desktop */}
+      <div style={sidebarStyle}>
+        <div style={periodControlStyle}>
+          <h3 style={{ 
+            marginBottom: '0.5rem', 
+            fontSize: isMobile ? '0.9rem' : '1rem' 
+          }}>📅 Période A</h3>
+          <input 
+            type="text" 
+            value={selectedYearA} 
+            onChange={e => setSelectedYearA(e.target.value)} 
+            placeholder="Année" 
+            style={inputStyle}
+          />
+          <input 
+            type="text" 
+            value={selectedMonthA} 
+            onChange={e => setSelectedMonthA(e.target.value)} 
+            placeholder="Mois" 
+            style={{...inputStyle, marginBottom: 0}}
+          />
+          {!isMobile && displayTemps(tempsA)}
         </div>
 
         {compareMode && (
-          <div>
-            <h3 style={{ marginBottom: '1rem' }}>📅 Période B</h3>
-            <input type="text" value={selectedYearB} onChange={e => setSelectedYearB(e.target.value)} placeholder="Année" style={{ width: '100%', marginBottom: '0.5rem', padding: '0.5rem', background: '#222', color: '#fff', border: '1px solid #444' }} />
-            <input type="text" value={selectedMonthB} onChange={e => setSelectedMonthB(e.target.value)} placeholder="Mois" style={{ width: '100%', padding: '0.5rem', background: '#222', color: '#fff', border: '1px solid #444' }} />
-            {displayTemps(tempsB)}
+          <div style={periodControlStyle}>
+            <h3 style={{ 
+              marginBottom: '0.5rem', 
+              fontSize: isMobile ? '0.9rem' : '1rem' 
+            }}>📅 Période B</h3>
+            <input 
+              type="text" 
+              value={selectedYearB} 
+              onChange={e => setSelectedYearB(e.target.value)} 
+              placeholder="Année" 
+              style={inputStyle}
+            />
+            <input 
+              type="text" 
+              value={selectedMonthB} 
+              onChange={e => setSelectedMonthB(e.target.value)} 
+              placeholder="Mois" 
+              style={{...inputStyle, marginBottom: 0}}
+            />
+            {!isMobile && displayTemps(tempsB)}
           </div>
         )}
       </div>
 
-      {/* CANVAS */}
+      {/* CANVAS AREA */}
       <div style={{
         flexGrow: 1,
         minWidth: isMobile ? '100%' : '400px',
         maxWidth: '100%',
-        height: isMobile ? 'calc(100vh - 300px)' : '100vh',
+        height: isMobile ? 'calc(100vh - 120px)' : '100vh',
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: isMobile && compareMode ? 'column' : 'row',
         position: 'relative',
       }}>
-        <div style={{
-          position: 'absolute',
-          top: '1rem',
-          left: '1rem',
-          zIndex: 10,
-          background: '#222',
-          padding: '0.75rem 1rem',
-          borderRadius: '8px',
-          border: '1px solid #444',
-          color: '#fff'
-        }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <input type="checkbox" checked={compareMode} onChange={e => setCompareMode(e.target.checked)} style={{ accentColor: '#4a90e2' }} />
-            Mode comparaison
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <input type="checkbox" checked={autoRotate} onChange={e => setAutoRotate(e.target.checked)} style={{ accentColor: '#4a90e2' }} />
-            Rotation automatique
-          </label>
-        </div>
+        {/* Contrôles selon le mode */}
+        {isMobile ? (
+          <MobileControls 
+            compareMode={compareMode}
+            setCompareMode={setCompareMode}
+            autoRotate={autoRotate}
+            setAutoRotate={setAutoRotate}
+          />
+        ) : (
+          <DesktopControls 
+            compareMode={compareMode}
+            setCompareMode={setCompareMode}
+            autoRotate={autoRotate}
+            setAutoRotate={setAutoRotate}
+          />
+        )}
 
         {compareMode ? (
           <>
-            {renderCanvas(selectedYearA, selectedMonthA, setTempsA, globeRefA, 'compare-a')}
-            {renderCanvas(selectedYearB, selectedMonthB, setTempsB, globeRefB, 'compare-b')}
+            <div style={{ 
+              flex: 1, 
+              height: isMobile ? '50%' : '100%',
+              position: 'relative'
+            }}>
+              {isMobile && (
+                <div style={{
+                  position: 'absolute',
+                  top: '0.5rem',
+                  left: '0.5rem',
+                  zIndex: 10,
+                  background: 'rgba(0,0,0,0.7)',
+                  color: '#fff',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '4px',
+                  fontSize: '0.8rem'
+                }}>
+                  Période A
+                </div>
+              )}
+              {renderCanvas(selectedYearA, selectedMonthA, setTempsA, globeRefA, 'compare-a')}
+            </div>
+            <div style={{ 
+              flex: 1, 
+              height: isMobile ? '50%' : '100%',
+              position: 'relative'
+            }}>
+              {isMobile && (
+                <div style={{
+                  position: 'absolute',
+                  top: '0.5rem',
+                  left: '0.5rem',
+                  zIndex: 10,
+                  background: 'rgba(0,0,0,0.7)',
+                  color: '#fff',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '4px',
+                  fontSize: '0.8rem'
+                }}>
+                  Période B
+                </div>
+              )}
+              {renderCanvas(selectedYearB, selectedMonthB, setTempsB, globeRefB, 'compare-b')}
+            </div>
           </>
         ) : (
           <Canvas 
@@ -376,6 +608,46 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
           </Canvas>
         )}
       </div>
+
+      {/* Affichage des températures en mobile en bas */}
+      {isMobile && (
+        <div style={{
+          position: 'fixed',
+          bottom: '5rem',
+          left: '0.5rem',
+          right: '0.5rem',
+          zIndex: 15,
+          background: 'rgba(17, 17, 17, 0.95)',
+          color: '#fff',
+          padding: '0.75rem',
+          borderRadius: '8px',
+          border: '1px solid #444',
+          backdropFilter: 'blur(10px)',
+          fontSize: '0.8rem',
+          display: 'flex',
+          flexDirection: compareMode ? 'row' : 'column',
+          gap: compareMode ? '1rem' : '0.5rem'
+        }}>
+          <div style={{ flex: 1 }}>
+            <strong>Période A:</strong>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+              <span>🌍 {tempsA.global !== null ? tempsA.global.toFixed(1) + '°C' : 'N/A'}</span>
+              <span>🧊 {tempsA.north !== null ? tempsA.north.toFixed(1) + '°C' : 'N/A'}</span>
+              <span>🏔️ {tempsA.south !== null ? tempsA.south.toFixed(1) + '°C' : 'N/A'}</span>
+            </div>
+          </div>
+          {compareMode && (
+            <div style={{ flex: 1 }}>
+              <strong>Période B:</strong>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                <span>🌍 {tempsB.global !== null ? tempsB.global.toFixed(1) + '°C' : 'N/A'}</span>
+                <span>🧊 {tempsB.north !== null ? tempsB.north.toFixed(1) + '°C' : 'N/A'}</span>
+                <span>🏔️ {tempsB.south !== null ? tempsB.south.toFixed(1) + '°C' : 'N/A'}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
