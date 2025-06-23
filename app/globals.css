@@ -261,3 +261,33 @@ main {
     padding: 0 15px;
   }
 }
+
+/* --- NAVBAR --- */
+nav{
+  display:flex;
+  flex-wrap:wrap;               /* permet le retour à la ligne */
+  align-items:center;
+  justify-content:space-between;
+  padding:.5rem 1rem;
+  background:#111;
+  color:#fff;
+}
+
+nav ul{
+  display:flex;
+  gap:1rem;
+  list-style:none;
+  margin:0;
+  padding:0;
+  flex-wrap:wrap;               /* idem pour la liste */
+}
+
+@media (max-width:640px){       /* ≈  40 rem  */
+  nav ul li{
+    flex:0 0 50%;               /* 2 colonnes empilées */
+    margin-bottom:.25rem;
+  }
+  nav ul{
+    row-gap:.25rem;             /* réduit l’espace vertical */
+  }
+}

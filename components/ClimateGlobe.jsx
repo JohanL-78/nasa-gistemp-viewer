@@ -223,6 +223,23 @@ const Scene = ({ children }) => (
 
 export default function CanvasWithControlsOverlay({ availableDates }) {
   const isMobile = useIsMobile();
+  const overlayStyle = {
+  position: 'absolute',
+  zIndex: 10,
+  background: '#222',
+  padding: '0.75rem 1rem',
+  borderRadius: '8px',
+  border: '1px solid #444',
+  color: '#fff',
+
+  /* ➜ placement adaptatif */
+  right: '1rem',
+  top:  isMobile ? 'auto' : '1rem',
+  bottom: isMobile ? '1rem' : 'auto',
+
+  /* ➜ évite de couvrir le globe sur petits écrans */
+  maxWidth: isMobile ? 'calc(100% - 2rem)' : '260px'
+};
   const [autoRotate, setAutoRotate] = useState(true);
   const [compareMode, setCompareMode] = useState(false);
   const [selectedYearA, setSelectedYearA] = useState(availableDates.current_year);
@@ -326,17 +343,8 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
         flexDirection: 'column',
         position: 'relative',
       }}>
-        <div style={{
-          position: 'absolute',
-          top: '1rem',
-          left: '1rem',
-          zIndex: 10,
-          background: '#222',
-          padding: '0.75rem 1rem',
-          borderRadius: '8px',
-          border: '1px solid #444',
-          color: '#fff'
-        }}>
+        <div style={overlayStyle}>
+
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <input type="checkbox" checked={compareMode} onChange={e => setCompareMode(e.target.checked)} style={{ accentColor: '#4a90e2' }} />
             Mode comparaison
