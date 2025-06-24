@@ -288,7 +288,7 @@ export default function CanvasWithControlsOverlay({ availableDates }) {
         <button
           onClick={() => setControlsOpen((o) => !o)}
           aria-label="Ouvrir les commandes"
-          style={{ position: 'absolute', right: '1rem', top: '2rem', transform: 'translateY(-50%)', zIndex: 11, width: '44px', height: '44px', backgroundColor: 'black', outline: 'none', boxShadow: 'none', border: '1px solid  black', color: '#fff', fontSize: '2.5rem', cursor: 'pointer' }}
+          style={{ position: 'absolute', right: '1rem', top: '2rem', transform: 'translateY(-50%)', zIndex: 11, backgroundColor: '#000', outline: 'none', boxShadow: 'none', border: '1px solid  #000', borderRadius: '50%', outline: 'none', color: '#fff', fontSize: '2.5rem', cursor: 'pointer' }}
         >
           ⚙︎
         </button>
