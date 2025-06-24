@@ -375,8 +375,8 @@ export default function CanvasGlobe({ availableDates }) {
         animate="visible"
         style={{
           width: isMobile ? '100%' : '320px',
-          height: isMobile ? 'auto' : '85vh',
-          maxHeight: isMobile ? '40vh' : '85vh',
+          height: isMobile ? 'auto' : '80vh',
+          maxHeight: isMobile ? '40vh' : '80vh',
           flexShrink: 0,
           background: 'linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 15, 15, 0.95) 100%)',
           backdropFilter: 'blur(20px)',
