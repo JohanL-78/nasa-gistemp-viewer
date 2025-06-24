@@ -178,23 +178,23 @@ main {
 }
 
 /* Color scale */
-.color-scale {
-  display: flex;
-  margin: 20px 0;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: #fff;
-  justify-content: center;
-  align-items: center;
-}
-
 .color-scale .gradient {
   height: 20px;
   width: 80%;
-  background: linear-gradient(to right, #0000FF, #FFFFFF, #FF0000);
   margin: 0 10px;
   border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    #053061,  /* -5°C : bleu foncé */
+    #2166ac,  /* -3°C : bleu moyen */
+    #4393c3,  /* -1°C : bleu clair */
+    #f7f7f7,  /*  0°C : blanc/gris */
+    #d6604d,  /* +1°C : rouge clair */
+    #b2182b,  /* +3°C : rouge vif */
+    #67001f   /* +5°C : rouge sombre */
+  );
 }
+
 
 .color-scale .scale-label {
   font-size: 12px;
