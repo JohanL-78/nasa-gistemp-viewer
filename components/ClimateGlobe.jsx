@@ -177,7 +177,7 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
   const instanceId = useRef(Math.random().toString(36).slice(2, 11)).current;
 
   useFrame(() => {
-    if (autoRotate && groupRef.current) groupRef.current.rotation.y += 0.001;
+    if (autoRotate && groupRef.current) groupRef.current.rotation.y += 0.0016;
   });
 
   useEffect(() => {
@@ -277,7 +277,7 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
   }, [temperatureTexture, overlayTexture]);
 
   return (
-    <group ref={groupRef} rotation-x={0.2} visible={isVisible}>
+    <group ref={groupRef} rotation-x={0.2} visible={isVisible} position={[0, 0.3, 0]}>
       <mesh ref={baseMeshRef} rotation-x={0.2}>
         <sphereGeometry args={[1, 128, 64]} />
         <meshBasicMaterial map={temperatureTexture} transparent={true} toneMapped={false} />
@@ -365,7 +365,7 @@ export default function CanvasGlobe({ availableDates }) {
     <div style={{ 
       display: 'flex', 
       flexDirection: isMobile ? 'column' : 'row', 
-      height: '100vh', 
+      height: '85vh', 
       width: '100%',
       background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%)'
     }}>
@@ -375,8 +375,8 @@ export default function CanvasGlobe({ availableDates }) {
         animate="visible"
         style={{
           width: isMobile ? '100%' : '320px',
-          height: isMobile ? 'auto' : '100vh',
-          maxHeight: isMobile ? '40vh' : '100vh',
+          height: isMobile ? 'auto' : '85vh',
+          maxHeight: isMobile ? '40vh' : '85vh',
           flexShrink: 0,
           background: 'linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 15, 15, 0.95) 100%)',
           backdropFilter: 'blur(20px)',

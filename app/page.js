@@ -20,28 +20,17 @@ export default async function HomePage() {
         <div className="description-section" id="visualization">
           <div className="container">
             <article>
-              <h2>NASA GISTEMP Visualization</h2>
-              <p>
-                Cette application interactive visualise les anomalies de température globale provenant du dataset NASA GISTEMP.
-                Les couleurs sur le globe représentent les écarts de température par rapport à la période de référence (1951-1980).
-              </p>
-              <p><strong>Comment utiliser :</strong></p>
-              <ul>
-                <li>Sélectionnez une année et un mois dans les menus déroulants</li>
-                <li>Le globe se mettra à jour pour afficher les anomalies de température pour cette période</li>
-                <li>Utilisez votre souris pour faire pivoter, zoomer et déplacer le globe</li>
-                <li>Les couleurs rouges indiquent un réchauffement, les bleues un refroidissement</li>
-              </ul>
-              <div className="color-scale">
+              
+              
+                
+                
+              
+              <div className="color-scale" style={{ display: 'flex', justifyContent: 'center'}}>
                 <div className="scale-label">-5°C</div>
                 <div className="gradient"></div>
                 <div className="scale-label">+5°C</div>
               </div>
-              <p>
-                NASA GISTEMP (Goddard Institute for Space Studies Surface Temperature Analysis) fournit une estimation des changements 
-                de température à la surface du globe.
-              </p>
-              <p><small>Source des données : NASA Goddard Institute for Space Studies</small></p>
+              
             </article>
           </div>
         </div>

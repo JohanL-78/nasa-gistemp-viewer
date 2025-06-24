@@ -56,7 +56,7 @@ nav ul {
 
 nav ul li a {
   font-size: 18px;
-  color: red;
+  color: #23a6d5;
   text-decoration: none;
   transition: color 0.3s ease;
 }
@@ -86,22 +86,22 @@ nav ul li a:hover {
 
 article {
   padding: 20px;
-  background-color: white;
-  color: black;
+  background-color: black;
+  color: white;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 article h2 {
   font-size: 26px;
-  color: black;
+  color: white;
   margin-bottom: 15px;
 }
 
 article p {
   font-size: 16px;
   line-height: 1.6;
-  color: black;
+  color: white;
 }
 
 /* Section globe pleine largeur */
