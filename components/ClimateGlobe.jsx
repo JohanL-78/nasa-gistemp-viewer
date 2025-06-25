@@ -277,7 +277,7 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
   }, [temperatureTexture, overlayTexture]);
 
   return (
-    <group ref={groupRef} rotation-x={0.2} visible={isVisible} position={[0, 0.3, 0]}>
+    <group ref={groupRef} rotation-x={0.2} visible={isVisible} position={[0, 0.2, 0]}>
       <mesh ref={baseMeshRef} rotation-x={0.2}>
         <sphereGeometry args={[1, 128, 64]} />
         <meshBasicMaterial map={temperatureTexture} transparent={true} toneMapped={false} />
@@ -536,8 +536,8 @@ export default function CanvasGlobe({ availableDates }) {
         flexGrow: 1,
         minWidth: 0,
         maxWidth: '100%',
-        height: isMobile ? 'auto' : '100vh',
-        minHeight: isMobile ? '50vh' : '100vh',
+        height: isMobile ? 'auto' : '90vh',
+        minHeight: isMobile ? '50vh' : '90vh',
         position: 'relative',
         zIndex: 1
       }}>
