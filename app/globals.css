@@ -72,42 +72,12 @@ nav ul li a:hover {
   margin: 0 auto;
 }
 
-/* Section description au-dessus */
-.description-section {
-  padding: 2rem 0;
-  background-color: black;
-}
-
-.description-section .container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-article {
-  padding: 20px;
-  background-color: black;
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-article h2 {
-  font-size: 26px;
-  color: white;
-  margin-bottom: 15px;
-}
-
-article p {
-  font-size: 16px;
-  line-height: 1.6;
-  color: white;
-}
 
 /* Section globe pleine largeur */
 .globe-section {
   width: 100%;
   background: #111;
+  margin-top: 1rem;
 }
 
 /* S'assurer que le main n'a pas de contraintes de largeur */

@@ -16,30 +16,18 @@ export default async function HomePage() {
       <Navbar />
       
       <main>
-        {/* Section description - maintenant séparée et au-dessus */}
-        <div className="description-section" id="visualization">
-          <div className="container">
-            <article>
-              
-              
-                
-                
-              
-              <div className="color-scale" style={{ display: 'flex', justifyContent: 'center'}}>
-                <div className="scale-label">-5°C</div>
-                <div className="gradient"></div>
-                <div className="scale-label">+5°C</div>
-              </div>
-              
-            </article>
-          </div>
-        </div>
+ 
 
         {/* Section globe - maintenant pleine largeur */}
         <div className="globe-section">
           {/* Le composant client reçoit les données pré-chargées du serveur */}
           <ClimateGlobe availableDates={availableDates} />
         </div>
+        {/*<div className="color-scale" style={{ display: 'flex', justifyContent: 'center'}}>
+                <div className="scale-label">-5°C</div>
+                <div className="gradient"></div>
+                <div className="scale-label">+5°C</div>
+              </div> */}
 
         <div className="data-section" id="data">
           <h2>Données mensuelles de température globale</h2>
