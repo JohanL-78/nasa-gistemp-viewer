@@ -365,7 +365,7 @@ export default function CanvasGlobe({ availableDates }) {
     <div style={{ 
       display: 'flex', 
       flexDirection: isMobile ? 'column' : 'row', 
-      height: '85vh', 
+      height: '90vh', 
       width: '100%',
       background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%)'
     }}>
