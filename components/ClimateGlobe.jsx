@@ -129,8 +129,8 @@ const DetailModal = ({ isOpen, onClose, data, type, year, month }) => {
           description: 'Indicateur d\'El Niño et La Niña',
           details: `${data?.oni > 0 ? '+' : ''}${data?.oni?.toFixed(2)}°C par rapport à la moyenne de référence`,
           source: 'NOAA Climate Prediction Center',
-          sourceUrl: 'https://origin.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php',
-          explanation: 'L\'ONI (Oceanic Niño Index) mesure les anomalies de température de surface de la mer dans la région Niño 3.4 du Pacifique équatorial (5°N-5°S, 120°-170°W). Basé sur une moyenne mobile de 3 mois des données ERSSTv5, l\'ONI utilise des périodes de référence de 30 ans mises à jour tous les 5 ans. Des valeurs ≥ +0.5°C indiquent des conditions El Niño, ≤ -0.5°C indiquent La Niña. Ici, la valeur ONI affichée correspond au 3e mois de la moyenne mobile, permettant d\'afficher les données du mois en cours et de tenir compte du décalage temporel de 2-3 mois entre les anomalies océaniques et leurs effets climatiques.'
+          sourceUrl: 'https://www.cpc.ncep.noaa.gov/data/indices/',
+          explanation: 'L\'ONI mesure les anomalies de température de surface de la mer dans la région Niño 3.4 du Pacifique équatorial. Des valeurs ≥ +0.5°C indiquent El Niño, ≤ -0.5°C indiquent La Niña. La période de référence utilisée ici est basée sur les moyennes mobiles de 30 ans mises à jour tous les 5 ans.'
         };
       default:
         return null;
@@ -417,17 +417,17 @@ const TemperatureScale = () => {
   );
 };
 
-const DataCard = ({ icon: Icon, label, value, color, onClick }) => {
+const DataCard = ({ icon: Icon, label, value, color, onClick, isLoading }) => {
   const isMobile = useIsMobile();
   
   return (
     <motion.div
-      whileHover={{ scale: 1.05, y: -2 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: isLoading ? 1 : 1.05, y: isLoading ? 0 : -2 }}
+      whileTap={{ scale: isLoading ? 1 : 0.95 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      onClick={onClick}
+      onClick={isLoading ? undefined : onClick}
       style={{
         background: `linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)`,
         backdropFilter: 'blur(15px)',
@@ -438,31 +438,34 @@ const DataCard = ({ icon: Icon, label, value, color, onClick }) => {
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'center',
         gap: isMobile ? '4px' : '12px',
-        cursor: 'pointer',
+        cursor: isLoading ? 'default' : 'pointer',
         transition: 'all 0.3s ease',
         boxShadow: `0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px ${color}10`,
         minHeight: isMobile ? '60px' : 'auto',
-        position: 'relative'
+        position: 'relative',
+        opacity: isLoading ? 0.7 : 1
       }}
     >
-      {/* Petit indicateur pour montrer que c'est cliquable */}
-      <motion.div
-        style={{
-          position: 'absolute',
-          top: isMobile ? '4px' : '8px',
-          right: isMobile ? '4px' : '8px',
-          width: '6px',
-          height: '6px',
-          borderRadius: '50%',
-          background: color,
-          opacity: 0.6
-        }}
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.6, 1, 0.6]
-        }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      />
+      {/* Petit indicateur pour montrer que c'est cliquable - seulement si pas en loading */}
+      {!isLoading && (
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: isMobile ? '4px' : '8px',
+            right: isMobile ? '4px' : '8px',
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            background: color,
+            opacity: 0.6
+          }}
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.6, 1, 0.6]
+          }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
       
       <motion.div 
         style={{
@@ -475,12 +478,12 @@ const DataCard = ({ icon: Icon, label, value, color, onClick }) => {
           position: 'relative',
           flexShrink: 0
         }}
-        whileHover={{
+        whileHover={isLoading ? {} : {
           boxShadow: `0 0 30px ${color}60, 0 0 60px ${color}30`,
           scale: 1.1
         }}
         initial={{ boxShadow: `0 0 0px ${color}00` }}
-        animate={{ 
+        animate={isLoading ? {} : { 
           boxShadow: [
             `0 0 0px ${color}00`,
             `0 0 20px ${color}40`,
@@ -519,7 +522,16 @@ const DataCard = ({ icon: Icon, label, value, color, onClick }) => {
           textShadow: `0 0 10px ${color}50`,
           whiteSpace: 'nowrap'
         }}>
-          {value !== null ? `${value?.toFixed(2)}°C` : 'N/A'}
+          {isLoading ? (
+            <motion.span
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              ...
+            </motion.span>
+          ) : (
+            value !== null && value !== undefined ? `${value?.toFixed(2)}°C` : 'N/A'
+          )}
         </div>
       </div>
     </motion.div>
@@ -670,6 +682,7 @@ export default function CanvasGlobe({ availableDates }) {
   const [year, setYear] = useState(availableDates.current_year);
   const [month, setMonth] = useState(availableDates.current_month);
   const [temps, setTemps] = useState({});
+  const [isLoadingTemps, setIsLoadingTemps] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   const globeRef = useRef(null);
@@ -707,8 +720,28 @@ export default function CanvasGlobe({ availableDates }) {
   };
 
   const handleCardClick = (type) => {
+    // Empêcher l'ouverture de la modale si les données ne sont pas encore chargées
+    if (isLoadingTemps || !temps || Object.keys(temps).length === 0) {
+      return;
+    }
     setModalType(type);
     setModalOpen(true);
+  };
+
+  const handleTempsLoad = (newTemps) => {
+    setTemps(newTemps || {});
+    setIsLoadingTemps(false);
+  };
+
+  // Réinitialiser le loading quand on change de date
+  const handleYearChange = (e) => {
+    setYear(e.target.value);
+    setIsLoadingTemps(true);
+  };
+
+  const handleMonthChange = (e) => {
+    setMonth(e.target.value);
+    setIsLoadingTemps(true);
   };
 
   const overlayStyle = {
@@ -805,13 +838,13 @@ export default function CanvasGlobe({ availableDates }) {
 
           <ModernInput 
             value={year} 
-            onChange={(e) => setYear(e.target.value)} 
+            onChange={handleYearChange} 
             placeholder="Année" 
             icon={Calendar}
           />
           <ModernInput 
             value={month} 
-            onChange={(e) => setMonth(e.target.value)} 
+            onChange={handleMonthChange} 
             placeholder="Mois" 
             icon={Calendar}
           />
@@ -870,33 +903,37 @@ export default function CanvasGlobe({ availableDates }) {
             <DataCard 
               icon={Globe2} 
               label="Global" 
-              value={temps.global} 
+              value={isLoadingTemps ? null : temps.global} 
               color="#ff0080"
               onClick={() => handleCardClick('global')}
+              isLoading={isLoadingTemps}
             />
             
             <DataCard 
               icon={Snowflake} 
               label="Nord" 
-              value={temps.north} 
+              value={isLoadingTemps ? null : temps.north} 
               color="#00ff88"
               onClick={() => handleCardClick('north')}
+              isLoading={isLoadingTemps}
             />
             
             <DataCard 
               icon={Mountain} 
               label="Sud" 
-              value={temps.south} 
+              value={isLoadingTemps ? null : temps.south} 
               color="#ff8c00"
               onClick={() => handleCardClick('south')}
+              isLoading={isLoadingTemps}
             />
             
             <DataCard 
               icon={Waves} 
               label="ONI" 
-              value={temps.oni} 
+              value={isLoadingTemps ? null : temps.oni} 
               color="#00d4ff"
               onClick={() => handleCardClick('oni')}
+              isLoading={isLoadingTemps}
             />
           </div>
         </motion.div>
@@ -1020,7 +1057,7 @@ export default function CanvasGlobe({ availableDates }) {
                 month={month} 
                 isVisible={true} 
                 autoRotate={autoRotate} 
-                onLoad={setTemps} 
+                onLoad={handleTempsLoad} 
                 globeRef={globeRef} 
               />
             </Scene>
