@@ -61,7 +61,7 @@ const ModernInput = ({ value, onChange, placeholder, icon: Icon }) => {
           border: '1px solid rgba(255, 255, 255, 0.1)',
           borderRadius: isMobile ? '8px' : '12px',
           color: '#fff',
-          fontSize: isMobile ? '12px' : '14px',
+          fontSize: isMobile ? '16px' : '14px', // 16px sur mobile pour éviter le zoom iOS
           outline: 'none',
           transition: 'all 0.3s ease',
           boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
@@ -687,6 +687,11 @@ export default function CanvasGlobe({ availableDates }) {
   const [modalType, setModalType] = useState(null);
   const globeRef = useRef(null);
 
+  // Effet pour charger les données initiales
+  useEffect(() => {
+    setIsLoadingTemps(true);
+  }, []);
+
   const sidebarVariants = {
     hidden: {
       x: isMobile ? 0 : -300,
@@ -1046,7 +1051,10 @@ export default function CanvasGlobe({ availableDates }) {
 
         <Canvas 
           key={`${year}-${month}`} 
-          camera={{ position: [0, 0, 2.5], fov: 75 }} 
+          camera={{ 
+            position: [0, 0, isMobile ? 3.5 : 2.5], // Caméra plus éloignée sur mobile
+            fov: 75 
+          }} 
           gl={{ antialias: true, alpha: true }} 
           style={{ width: '100%', height: '100%' }}
         >
@@ -1065,8 +1073,8 @@ export default function CanvasGlobe({ availableDates }) {
               enableDamping 
               dampingFactor={0.1} 
               zoomSpeed={0.3} 
-              minDistance={2} 
-              maxDistance={5} 
+              minDistance={isMobile ? 2.5 : 2} 
+              maxDistance={isMobile ? 6 : 5} 
               enablePan={false} 
             />
           </Suspense>
