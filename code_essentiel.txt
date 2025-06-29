@@ -373,7 +373,6 @@ export default function Navbar() {
       <div className="logo">Nasa Gistemp Viewer</div>
       <ul>
         <li><Link href="/">Home</Link></li>
-        <li><Link href="#visualization">Visualisation</Link></li>
         <li><Link href="#data">Données</Link></li>
         <li><Link href="#about">À propos</Link></li>
       </ul>
@@ -386,7 +385,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Globe2, Thermometer, Snowflake, Mountain, Waves, Settings } from 'lucide-react';
+import { Calendar, Globe2, Thermometer, Snowflake, Mountain, Waves, Settings, X, Info, ExternalLink } from 'lucide-react';
 import * as THREE from 'three';
 import { getTemperatureDataAction } from '@/lib/actions';
 
@@ -443,7 +442,7 @@ const ModernInput = ({ value, onChange, placeholder, icon: Icon }) => {
           border: '1px solid rgba(255, 255, 255, 0.1)',
           borderRadius: isMobile ? '8px' : '12px',
           color: '#fff',
-          fontSize: isMobile ? '12px' : '14px',
+          fontSize: isMobile ? '16px' : '14px', // 16px sur mobile pour éviter le zoom iOS
           outline: 'none',
           transition: 'all 0.3s ease',
           boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
@@ -461,16 +460,355 @@ const ModernInput = ({ value, onChange, placeholder, icon: Icon }) => {
   );
 };
 
-const DataCard = ({ icon: Icon, label, value, color }) => {
+const DetailModal = ({ isOpen, onClose, data, type, year, month }) => {
+  const isMobile = useIsMobile();
+
+  const getModalContent = () => {
+    switch (type) {
+      case 'global':
+        return {
+          title: 'Température Globale',
+          icon: Globe2,
+          color: '#ff0080',
+          value: data?.global,
+          description: 'Anomalie de température moyenne globale',
+          details: `${data?.global > 0 ? '+' : ''}${data?.global?.toFixed(2)}°C au-dessus de la moyenne 1951-1980`,
+          source: 'NASA GISTEMP',
+          sourceUrl: 'https://data.giss.nasa.gov/gistemp/',
+          explanation: 'Les données GISTEMP (Goddard Institute for Space Studies Surface Temperature Analysis) représentent les anomalies de température par rapport à la période de référence 1951-1980. Les valeurs positives indiquent des températures supérieures à la moyenne de cette période de référence.'
+        };
+      case 'north':
+        return {
+          title: 'Hémisphère Nord',
+          icon: Snowflake,
+          color: '#00ff88',
+          value: data?.north,
+          description: 'Anomalie de température de l\'hémisphère nord',
+          details: `${data?.north > 0 ? '+' : ''}${data?.north?.toFixed(2)}°C au-dessus de la moyenne 1951-1980`,
+          source: 'NASA GISTEMP',
+          sourceUrl: 'https://data.giss.nasa.gov/gistemp/',
+          explanation: 'Cette mesure couvre toutes les terres et océans situés au nord de l\'équateur. L\'hémisphère nord contient la majorité des masses continentales et montre généralement des variations plus importantes que l\'hémisphère sud.'
+        };
+      case 'south':
+        return {
+          title: 'Hémisphère Sud',
+          icon: Mountain,
+          color: '#ff8c00',
+          value: data?.south,
+          description: 'Anomalie de température de l\'hémisphère sud',
+          details: `${data?.south > 0 ? '+' : ''}${data?.south?.toFixed(2)}°C au-dessus de la moyenne 1951-1980`,
+          source: 'NASA GISTEMP',
+          sourceUrl: 'https://data.giss.nasa.gov/gistemp/',
+          explanation: 'Cette mesure couvre toutes les terres et océans situés au sud de l\'équateur. L\'hémisphère sud, dominé par les océans, tend à avoir des variations de température plus modérées que l\'hémisphère nord.'
+        };
+      case 'oni':
+        return {
+          title: 'Indice Océanique Niño (ONI)',
+          icon: Waves,
+          color: '#00d4ff',
+          value: data?.oni,
+          description: 'Indicateur d\'El Niño et La Niña',
+          details: `${data?.oni > 0 ? '+' : ''}${data?.oni?.toFixed(2)}°C par rapport à la moyenne de référence`,
+          source: 'NOAA Climate Prediction Center',
+          sourceUrl: 'https://www.cpc.ncep.noaa.gov/data/indices/',
+          explanation: 'L\'ONI (Oceanic Niño Index) mesure les anomalies de température de surface de la mer dans la région Niño 3.4 du Pacifique équatorial (5°N-5°S, 120°-170°W). Basé sur une moyenne mobile de 3 mois des données ERSSTv5, l\'ONI utilise des périodes de référence de 30 ans mises à jour tous les 5 ans. Des valeurs ≥ +0.5°C indiquent des conditions El Niño, ≤ -0.5°C indiquent La Niña. Ici, la valeur ONI affichée correspond au 3e mois de la moyenne mobile, permettant d\'afficher les données du mois en cours et de tenir compte du décalage temporel de 2-3 mois entre les anomalies océaniques et leurs effets climatiques.'
+        };
+      default:
+        return null;
+    }
+  };
+
+  const content = getModalContent();
+  if (!content) return null;
+
+  const Icon = content.icon;
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: isMobile ? '20px' : '40px'
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 15, 15, 0.95) 100%)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '20px',
+              border: `1px solid ${content.color}40`,
+              padding: isMobile ? '24px' : '32px',
+              maxWidth: isMobile ? '90vw' : '500px',
+              width: '100%',
+              color: '#fff',
+              position: 'relative',
+              boxShadow: `0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px ${content.color}20`
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '24px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <motion.div
+                  style={{
+                    background: `linear-gradient(135deg, ${content.color}60, ${content.color}40)`,
+                    borderRadius: '12px',
+                    padding: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  animate={{
+                    boxShadow: [
+                      `0 0 0px ${content.color}00`,
+                      `0 0 20px ${content.color}60`,
+                      `0 0 0px ${content.color}00`
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <Icon size={24} color={content.color} />
+                </motion.div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '700' }}>
+                    {content.title}
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#bbb' }}>
+                    {month}/{year}
+                  </p>
+                </div>
+              </div>
+              
+              <motion.button
+                onClick={onClose}
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <X size={20} />
+              </motion.button>
+            </div>
+
+            {/* Value */}
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '24px',
+              padding: '20px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <div style={{
+                fontSize: isMobile ? '32px' : '48px',
+                fontWeight: '700',
+                color: content.color,
+                textShadow: `0 0 20px ${content.color}50`,
+                marginBottom: '8px'
+              }}>
+                {content.value !== null ? `${content.value?.toFixed(2)}°C` : 'N/A'}
+              </div>
+              <div style={{
+                fontSize: '16px',
+                color: '#bbb',
+                marginBottom: '12px'
+              }}>
+                {content.description}
+              </div>
+              <div style={{
+                fontSize: '14px',
+                color: content.color,
+                fontWeight: '600'
+              }}>
+                {content.details}
+              </div>
+            </div>
+
+            {/* Explanation */}
+            <div style={{
+              marginBottom: '24px',
+              padding: '16px',
+              background: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.05)'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '12px'
+              }}>
+                <Info size={16} color={content.color} />
+                <span style={{ fontSize: '14px', fontWeight: '600', color: content.color }}>
+                  Explication
+                </span>
+              </div>
+              <p style={{
+                fontSize: '13px',
+                lineHeight: '1.5',
+                color: '#ccc',
+                margin: 0
+              }}>
+                {content.explanation}
+              </p>
+            </div>
+
+            {/* Source */}
+            <motion.a
+              href={content.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 16px',
+                background: `linear-gradient(135deg, ${content.color}15, ${content.color}08)`,
+                border: `1px solid ${content.color}30`,
+                borderRadius: '12px',
+                color: content.color,
+                textDecoration: 'none',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <span>Source: {content.source}</span>
+              <ExternalLink size={16} />
+            </motion.a>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const TemperatureScale = () => {
   const isMobile = useIsMobile();
   
   return (
     <motion.div
-      whileHover={{ scale: 1.05, y: -2 }}
-      whileTap={{ scale: 0.95 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1, duration: 0.8 }}
+      style={{
+        position: 'absolute',
+        bottom: isMobile ? '10px' : '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 10,
+        background: 'rgba(0, 0, 0, 0.8)',
+        backdropFilter: 'blur(15px)',
+        padding: isMobile ? '8px 12px' : '12px 20px',
+        borderRadius: '16px',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        color: '#fff',
+        fontSize: isMobile ? '10px' : '12px',
+        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)'
+      }}
+    >
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: isMobile ? '6px' : '12px'
+      }}>
+        <motion.div
+          animate={{
+            boxShadow: [
+              '0 0 0px #64b5f600',
+              '0 0 15px #64b5f660',
+              '0 0 0px #64b5f600'
+            ]
+          }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Thermometer size={isMobile ? 12 : 16} color="#64b5f6" />
+        </motion.div>
+        
+        <span style={{ fontWeight: '600', marginRight: isMobile ? '4px' : '8px' }}>
+          Anomalies de température
+        </span>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '4px' : '8px' }}>
+          <span style={{ color: '#6bb6ff', fontSize: isMobile ? '9px' : '11px' }}>-5°C</span>
+          
+          <div style={{
+            width: isMobile ? '80px' : '120px',
+            height: isMobile ? '8px' : '12px',
+            background: 'linear-gradient(to right, #0066cc 0%, #3399ff 20%, #66ccff 40%, #ffffff 50%, #ffcc66 60%, #ff9933 80%, #cc3300 100%)',
+            borderRadius: '6px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            position: 'relative',
+            boxShadow: '0 0 10px rgba(255, 255, 255, 0.1)'
+          }}>
+            {/* Marqueur pour 0°C */}
+            <div style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '2px',
+              height: isMobile ? '12px' : '16px',
+              background: '#fff',
+              borderRadius: '1px',
+              boxShadow: '0 0 4px rgba(0, 0, 0, 0.5)'
+            }} />
+          </div>
+          
+          <span style={{ color: '#ff6666', fontSize: isMobile ? '9px' : '11px' }}>+5°C</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const DataCard = ({ icon: Icon, label, value, color, onClick, isLoading }) => {
+  const isMobile = useIsMobile();
+  
+  return (
+    <motion.div
+      whileHover={{ scale: isLoading ? 1 : 1.05, y: isLoading ? 0 : -2 }}
+      whileTap={{ scale: isLoading ? 1 : 0.95 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      onClick={isLoading ? undefined : onClick}
       style={{
         background: `linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)`,
         backdropFilter: 'blur(15px)',
@@ -481,12 +819,35 @@ const DataCard = ({ icon: Icon, label, value, color }) => {
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'center',
         gap: isMobile ? '4px' : '12px',
-        cursor: 'pointer',
+        cursor: isLoading ? 'default' : 'pointer',
         transition: 'all 0.3s ease',
         boxShadow: `0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px ${color}10`,
-        minHeight: isMobile ? '60px' : 'auto'
+        minHeight: isMobile ? '60px' : 'auto',
+        position: 'relative',
+        opacity: isLoading ? 0.7 : 1
       }}
     >
+      {/* Petit indicateur pour montrer que c'est cliquable - seulement si pas en loading */}
+      {!isLoading && (
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: isMobile ? '4px' : '8px',
+            right: isMobile ? '4px' : '8px',
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            background: color,
+            opacity: 0.6
+          }}
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.6, 1, 0.6]
+          }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+      
       <motion.div 
         style={{
           background: `linear-gradient(135deg, ${color}60, ${color}40)`,
@@ -498,12 +859,12 @@ const DataCard = ({ icon: Icon, label, value, color }) => {
           position: 'relative',
           flexShrink: 0
         }}
-        whileHover={{
+        whileHover={isLoading ? {} : {
           boxShadow: `0 0 30px ${color}60, 0 0 60px ${color}30`,
           scale: 1.1
         }}
         initial={{ boxShadow: `0 0 0px ${color}00` }}
-        animate={{ 
+        animate={isLoading ? {} : { 
           boxShadow: [
             `0 0 0px ${color}00`,
             `0 0 20px ${color}40`,
@@ -542,7 +903,16 @@ const DataCard = ({ icon: Icon, label, value, color }) => {
           textShadow: `0 0 10px ${color}50`,
           whiteSpace: 'nowrap'
         }}>
-          {value !== null ? `${value?.toFixed(2)}°C` : 'N/A'}
+          {isLoading ? (
+            <motion.span
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              ...
+            </motion.span>
+          ) : (
+            value !== null && value !== undefined ? `${value?.toFixed(2)}°C` : 'N/A'
+          )}
         </div>
       </div>
     </motion.div>
@@ -693,7 +1063,15 @@ export default function CanvasGlobe({ availableDates }) {
   const [year, setYear] = useState(availableDates.current_year);
   const [month, setMonth] = useState(availableDates.current_month);
   const [temps, setTemps] = useState({});
+  const [isLoadingTemps, setIsLoadingTemps] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
   const globeRef = useRef(null);
+
+  // Effet pour charger les données initiales
+  useEffect(() => {
+    setIsLoadingTemps(true);
+  }, []);
 
   const sidebarVariants = {
     hidden: {
@@ -725,6 +1103,31 @@ export default function CanvasGlobe({ availableDates }) {
         stiffness: 200
       }
     }
+  };
+
+  const handleCardClick = (type) => {
+    // Empêcher l'ouverture de la modale si les données ne sont pas encore chargées
+    if (isLoadingTemps || !temps || Object.keys(temps).length === 0) {
+      return;
+    }
+    setModalType(type);
+    setModalOpen(true);
+  };
+
+  const handleTempsLoad = (newTemps) => {
+    setTemps(newTemps || {});
+    setIsLoadingTemps(false);
+  };
+
+  // Réinitialiser le loading quand on change de date
+  const handleYearChange = (e) => {
+    setYear(e.target.value);
+    setIsLoadingTemps(true);
+  };
+
+  const handleMonthChange = (e) => {
+    setMonth(e.target.value);
+    setIsLoadingTemps(true);
   };
 
   const overlayStyle = {
@@ -821,13 +1224,13 @@ export default function CanvasGlobe({ availableDates }) {
 
           <ModernInput 
             value={year} 
-            onChange={(e) => setYear(e.target.value)} 
+            onChange={handleYearChange} 
             placeholder="Année" 
             icon={Calendar}
           />
           <ModernInput 
             value={month} 
-            onChange={(e) => setMonth(e.target.value)} 
+            onChange={handleMonthChange} 
             placeholder="Mois" 
             icon={Calendar}
           />
@@ -886,29 +1289,37 @@ export default function CanvasGlobe({ availableDates }) {
             <DataCard 
               icon={Globe2} 
               label="Global" 
-              value={temps.global} 
-              color="#00d4ff"
+              value={isLoadingTemps ? null : temps.global} 
+              color="#ff0080"
+              onClick={() => handleCardClick('global')}
+              isLoading={isLoadingTemps}
             />
             
             <DataCard 
               icon={Snowflake} 
               label="Nord" 
-              value={temps.north} 
+              value={isLoadingTemps ? null : temps.north} 
               color="#00ff88"
+              onClick={() => handleCardClick('north')}
+              isLoading={isLoadingTemps}
             />
             
             <DataCard 
               icon={Mountain} 
               label="Sud" 
-              value={temps.south} 
+              value={isLoadingTemps ? null : temps.south} 
               color="#ff8c00"
+              onClick={() => handleCardClick('south')}
+              isLoading={isLoadingTemps}
             />
             
             <DataCard 
               icon={Waves} 
               label="ONI" 
-              value={temps.oni} 
-              color="#ff0080"
+              value={isLoadingTemps ? null : temps.oni} 
+              color="#00d4ff"
+              onClick={() => handleCardClick('oni')}
+              isLoading={isLoadingTemps}
             />
           </div>
         </motion.div>
@@ -1016,9 +1427,15 @@ export default function CanvasGlobe({ availableDates }) {
           )}
         </AnimatePresence>
 
+        {/* Barre d'anomalies de température */}
+        <TemperatureScale />
+
         <Canvas 
           key={`${year}-${month}`} 
-          camera={{ position: [0, 0, 2.5], fov: 75 }} 
+          camera={{ 
+            position: [0, 0, isMobile ? 3.5 : 2.5], // Caméra plus éloignée sur mobile
+            fov: 75 
+          }} 
           gl={{ antialias: true, alpha: true }} 
           style={{ width: '100%', height: '100%' }}
         >
@@ -1029,7 +1446,7 @@ export default function CanvasGlobe({ availableDates }) {
                 month={month} 
                 isVisible={true} 
                 autoRotate={autoRotate} 
-                onLoad={setTemps} 
+                onLoad={handleTempsLoad} 
                 globeRef={globeRef} 
               />
             </Scene>
@@ -1037,13 +1454,23 @@ export default function CanvasGlobe({ availableDates }) {
               enableDamping 
               dampingFactor={0.1} 
               zoomSpeed={0.3} 
-              minDistance={2} 
-              maxDistance={5} 
+              minDistance={isMobile ? 2.5 : 2} 
+              maxDistance={isMobile ? 6 : 5} 
               enablePan={false} 
             />
           </Suspense>
         </Canvas>
       </div>
+
+      {/* Modale de détails */}
+      <DetailModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        data={temps}
+        type={modalType}
+        year={year}
+        month={month}
+      />
     </div>
   );
 }=== ./lib/actions.js ===
