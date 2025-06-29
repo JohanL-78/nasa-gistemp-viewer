@@ -346,11 +346,12 @@ const TemperatureScale = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1, duration: 0.8 }}
-      style={{
+       style={{
         position: 'absolute',
         bottom: isMobile ? '10px' : '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        left: isMobile ? '10px' : '50%',
+        right: isMobile ? '10px' : 'auto',
+        transform: isMobile ? 'none' : 'translateX(-50%)',
         zIndex: 10,
         background: 'rgba(0, 0, 0, 0.8)',
         backdropFilter: 'blur(15px)',
@@ -359,7 +360,8 @@ const TemperatureScale = () => {
         border: '1px solid rgba(255, 255, 255, 0.1)',
         color: '#fff',
         fontSize: isMobile ? '10px' : '12px',
-        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)'
+        boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
+        maxWidth: isMobile ? 'calc(100vw - 20px)' : '400px'
       }}
     >
       <div style={{

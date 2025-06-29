@@ -340,6 +340,39 @@ export default function HelpModal({ isOpen, onClose }) {
                 </p>
               </HelpSection>
 
+              {/* Table de données */}
+              <HelpSection icon={Database} title="Table de données interactive" color="#ffc107">
+                <p style={{ marginBottom: '12px' }}>
+                  Explorez les données sous forme de tableau dans la section "Données" :
+                </p>
+                <FeatureCard 
+                  icon={Database}
+                  title="Sélection de région"
+                  description="Choisissez entre Global, Hémisphère Nord ou Hémisphère Sud dans le menu déroulant"
+                  color="#ffc107"
+                />
+                <FeatureCard 
+                  icon={MousePointer}
+                  title="Tri des colonnes"
+                  description="Cliquez sur n'importe quel en-tête de colonne pour trier (ex: mois du plus chaud au plus froid)"
+                  color="#ffc107"
+                />
+                <FeatureCard 
+                  icon={Palette}
+                  title="Code couleur"
+                  description="Les cellules sont colorées : rouge pour les anomalies chaudes, bleu pour les froides"
+                  color="#ffc107"
+                />
+                <p style={{ 
+                  fontSize: isMobile ? '12px' : '13px', 
+                  color: '#bbb',
+                  fontStyle: 'italic',
+                  marginTop: '12px'
+                }}>
+                  💡 Astuce : Cliquez sur "Jan", "Feb", etc. pour voir quels mois ont été les plus chauds une année donnée !
+                </p>
+              </HelpSection>
+
               {/* Sources */}
               <HelpSection icon={ExternalLink} title="Sources des données" color="#9c27b0">
                 <FeatureCard 
