@@ -130,7 +130,7 @@ const DetailModal = ({ isOpen, onClose, data, type, year, month }) => {
           details: `${data?.oni > 0 ? '+' : ''}${data?.oni?.toFixed(2)}°C par rapport à la moyenne de référence`,
           source: 'NOAA Climate Prediction Center',
           sourceUrl: 'https://www.cpc.ncep.noaa.gov/data/indices/',
-          explanation: 'L\'ONI mesure les anomalies de température de surface de la mer dans la région Niño 3.4 du Pacifique équatorial. Des valeurs ≥ +0.5°C indiquent El Niño, ≤ -0.5°C indiquent La Niña. La période de référence utilisée ici est basée sur les moyennes mobiles de 30 ans mises à jour tous les 5 ans.'
+          explanation: 'L\'ONI (Oceanic Niño Index) mesure les anomalies de température de surface de la mer dans la région Niño 3.4 du Pacifique équatorial (5°N-5°S, 120°-170°W). Basé sur une moyenne mobile de 3 mois des données ERSSTv5, l\'ONI utilise des périodes de référence de 30 ans mises à jour tous les 5 ans. Des valeurs ≥ +0.5°C indiquent des conditions El Niño, ≤ -0.5°C indiquent La Niña. Ici, la valeur ONI affichée correspond au 3e mois de la moyenne mobile, permettant d\'afficher les données du mois en cours et de tenir compte du décalage temporel de 2-3 mois entre les anomalies océaniques et leurs effets climatiques.'
         };
       default:
         return null;
