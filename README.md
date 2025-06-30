@@ -24,7 +24,7 @@ Ce projet est né de ma passion pour la climatologie et les visualisations inter
 - **Frontend :** Next.js 15 (App Router), React 18
 - **3D :** Three.js, React Three Fiber
 - **Animations :** Framer Motion
-- **Styling :** CSS Modules, CSS-in-JS
+- **Styling :** CSS Global, CSS-in-JS
 - **Déploiement :** Vercel
 - **APIs :** NASA GISTEMP, NOAA Climate Prediction Center
 
