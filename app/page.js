@@ -38,7 +38,7 @@ export default async function HomePage() {
         <div className="data-section" id="about">
           <h2>À propos</h2>
   <p>
-    Visualisation interactive des anomalies de température NASA GISTEMP (1880-2024)
+    Visualisation interactive des anomalies de température NASA GISTEMP (1880-présent)
   </p>
   <p>
     Construit avec Next.js 15 & Three.js par <strong>Johan Lorck</strong>
