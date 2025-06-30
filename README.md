@@ -80,13 +80,13 @@ npm run dev
 ## 🌟 Captures d'écran
 
 ### Globe interactif
-![Globe 3D](screenshots/ClimateGlobe.png)
+![Globe 3D](public/screenshots/ClimateGlobe.png)
 
 ### Interface mobile
-![Mobile](screenshots/MobileGlobe.png)
+![Mobile](public/screenshots/MobileGlobe.png)
 
 ### Table de données
-![Data Table](screenshots/TableGlobe.png)
+![Data Table](public/screenshots/TableGlobe.png)
 
 ## 📈 Performance
 
