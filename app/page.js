@@ -36,13 +36,16 @@ export default async function HomePage() {
         </div>
 
         <div className="data-section" id="about">
-          <h2>À propos de ce projet</h2>
-          <p>
-            Cette application a été recréée avec Next.js 15 (App Router) et Three.js. Elle utilise les Server Components pour le rendu initial et les Server Actions pour les mises à jour de données, offrant une expérience rapide et moderne.
-          </p>
-          <p>
-            Le code source est disponible sur <a href="#">GitHub</a>.
-          </p>
+          <h2>À propos</h2>
+  <p>
+    Visualisation interactive des anomalies de température NASA GISTEMP (1880-2024)
+  </p>
+  <p>
+    Construit avec Next.js 15 & Three.js par <strong>Johan Lorck</strong>
+  </p>
+  <p>
+    <a href="https://github.com/JohanL-78/nasa-gistemp-viewer">Voir le code source</a>
+  </p>
         </div>
       </main>
     </>
