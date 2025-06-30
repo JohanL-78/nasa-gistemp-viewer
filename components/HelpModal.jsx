@@ -410,22 +410,7 @@ export default function HelpModal({ isOpen, onClose }) {
                   marginTop: '20px'
                 }}
               >
-                <h4 style={{ 
-                  margin: '0 0 8px 0', 
-                  fontSize: isMobile ? '14px' : '15px', 
-                  fontWeight: '600',
-                  color: '#64b5f6'
-                }}>
-                  💡 Conseil d'utilisation
-                </h4>
-                <p style={{ 
-                  margin: 0, 
-                  fontSize: isMobile ? '12px' : '13px', 
-                  color: '#bbb'
-                }}>
-                  Commencez par explorer les années récentes (2020-2024) pour voir le réchauffement actuel, 
-                  puis remontez dans le temps pour observer l'évolution historique du climat depuis 1880.
-                </p>
+               
               </motion.div>
             </div>
           </motion.div>

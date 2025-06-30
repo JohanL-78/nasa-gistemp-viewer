@@ -1,9 +1,24 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "NASA GISTEMP Temperature Anomaly Visualizer",
-  description: "Visualisation des anomalies de température globale NASA Gistemp, illustrant le réchauffement climatique, avec Next.js et Three.js",
+  title: "NASA GISTEMP Viewer – Visualisation 3D des anomalies climatiques",
+  description:
+    "Explorez les anomalies de température globale depuis 1880 avec un globe 3D interactif. Données NASA GISTEMP et NOAA, visualisation moderne en React/Next.js.",
+  keywords:
+    "NASA GISTEMP, anomalies de température, climat, globe 3D, visualisation climatique, changement climatique, température globale, données climat",
+  authors: [{ name: "Johan Lorck" }],
+  creator: "Johan Lorck",
+  openGraph: {
+    title: "NASA GISTEMP Viewer – Visualisation 3D des anomalies climatiques",
+    description:
+      "Application web interactive pour explorer les données climatiques de la NASA depuis 1880 à travers un globe 3D dynamique.",
+    url: "https://nasa-gistemp-viewer.vercel.app",
+    siteName: "NASA GISTEMP Viewer",
+    type: "website",
+    locale: "fr_FR"
+  },
 };
+
 
 export default function RootLayout({ children }) {
   return (
