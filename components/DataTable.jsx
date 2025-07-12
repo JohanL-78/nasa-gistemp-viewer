@@ -6,11 +6,13 @@ export default function DataTable({ initialData }) {
   const [tableData, setTableData] = useState(initialData);
   const [sortOrder, setSortOrder] = useState({});
   const [source, setSource] = useState('global');
+  const [reference, setReference] = useState('nasa');
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch(`/api/table?source=${source}`);
+        const params = new URLSearchParams({ source, reference });
+        const res = await fetch(`/api/table?${params.toString()}`);
         const data = await res.json();
         setTableData(data);
       } catch (error) {
@@ -18,7 +20,7 @@ export default function DataTable({ initialData }) {
       }
     }
     fetchData();
-  }, [source]);
+  }, [source, reference]);
 
   const sortTableByColumn = (colIndex) => {
     const order = sortOrder[colIndex] === 'desc' ? 'asc' : 'desc';
@@ -61,13 +63,24 @@ export default function DataTable({ initialData }) {
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="source">Choisir la région : </label>
-        <select id="source" value={source} onChange={(e) => setSource(e.target.value)}>
-          <option value="global">Global</option>
-          <option value="north">Hémisphère Nord</option>
-          <option value="south">Hémisphère Sud</option>
-        </select>
+      <div style={{ marginBottom: '1rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+        <div>
+          <label htmlFor="source">Choisir la région : </label>
+          <select id="source" value={source} onChange={(e) => setSource(e.target.value)}>
+            <option value="global">Global</option>
+            <option value="north">Hémisphère Nord</option>
+            <option value="south">Hémisphère Sud</option>
+          </select>
+        </div>
+        
+        <div>
+          <label htmlFor="reference">Période de référence : </label>
+          <select id="reference" value={reference} onChange={(e) => setReference(e.target.value)}>
+            <option value="nasa">1951-1980 (NASA)</option>
+            <option value="preindustrial">1880-1899 (Préindustriel)</option>
+            <option value="modern">1991-2020 (Moderne)</option>
+          </select>
+        </div>
       </div>
 
       <table className="data-table">
