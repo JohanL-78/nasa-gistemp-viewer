@@ -4,9 +4,10 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Globe2, Thermometer, Snowflake, Mountain, Waves, Settings, X, Info, ExternalLink } from 'lucide-react';
+import { Calendar, Globe2, Thermometer, Snowflake, Mountain, Waves, Settings, X, Info, ExternalLink, BarChart3 } from 'lucide-react';
 import * as THREE from 'three';
 import { getTemperatureDataAction } from '@/lib/actions';
+import TemperatureChart from './TemperatureChart';
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
@@ -687,11 +688,27 @@ export default function CanvasGlobe({ availableDates }) {
   const [isLoadingTemps, setIsLoadingTemps] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
+  const [chartOpen, setChartOpen] = useState(false);
+  const [tableData, setTableData] = useState([]);
   const globeRef = useRef(null);
 
   // Effet pour charger les données initiales
   useEffect(() => {
     setIsLoadingTemps(true);
+  }, []);
+
+  // Charger les données du tableau pour le graphique
+  useEffect(() => {
+    const loadTableData = async () => {
+      try {
+        const response = await fetch('/api/table?source=global&reference=nasa');
+        const data = await response.json();
+        setTableData(data);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données du tableau:', error);
+      }
+    };
+    loadTableData();
   }, []);
 
   const sidebarVariants = {
@@ -896,11 +913,63 @@ export default function CanvasGlobe({ availableDates }) {
               margin: 0, 
               fontSize: isMobile ? '12px' : '16px', 
               fontWeight: '600',
-              color: '#fff'
+              color: '#fff',
+              flex: 1
             }}>
               {isMobile ? 'Données' : 'Données Climatiques'}
             </h4>
           </div>
+          
+          <motion.button
+            whileHover={{ scale: 1.05, y: -1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setChartOpen(true)}
+            animate={{
+              boxShadow: [
+                '0 2px 8px rgba(100, 181, 246, 0.2)',
+                '0 4px 16px rgba(100, 181, 246, 0.4)',
+                '0 2px 8px rgba(100, 181, 246, 0.2)'
+              ]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            style={{
+              background: 'linear-gradient(135deg, rgba(100, 181, 246, 0.2), rgba(66, 165, 245, 0.3))',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(100, 181, 246, 0.4)',
+              borderRadius: '12px',
+              padding: isMobile ? '6px 10px' : '8px 12px',
+              color: '#64b5f6',
+              fontSize: isMobile ? '10px' : '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              fontWeight: '600',
+              width: '100%',
+              marginBottom: isMobile ? '8px' : '12px',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <motion.div
+              animate={{
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.5
+              }}
+            >
+              <BarChart3 size={isMobile ? 12 : 14} />
+            </motion.div>
+            {isMobile ? 'Graphique' : 'Voir Graphique'}
+          </motion.button>
           
           <div style={{
             display: 'grid',
@@ -1091,6 +1160,14 @@ export default function CanvasGlobe({ availableDates }) {
         type={modalType}
         year={year}
         month={month}
+      />
+
+      {/* Graphique des anomalies */}
+      <TemperatureChart
+        isOpen={chartOpen}
+        onClose={() => setChartOpen(false)}
+        tableData={tableData}
+        currentMonth={parseInt(month)}
       />
     </div>
   );

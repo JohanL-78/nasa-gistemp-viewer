@@ -12,12 +12,14 @@
     "@react-three/drei": "^10.3.0",
     "@react-three/fiber": "^9.1.2",
     "framer-motion": "^12.19.1",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^0.522.0",
     "next": "15.3.3",
     "next-sitemap": "^4.2.3",
     "node-fetch": "^2.7.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "recharts": "^3.1.0",
     "three": "^0.177.0"
   },
   "devDependencies": {
