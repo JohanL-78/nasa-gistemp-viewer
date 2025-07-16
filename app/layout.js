@@ -5,7 +5,7 @@ export const metadata = {
   description:
     "Explorez les anomalies de température globale depuis 1880 avec un globe 3D interactif. Données NASA GISTEMP et NOAA, visualisation moderne en React/Next.js.",
   keywords:
-    "NASA GISTEMP, anomalies de température, climat, globe 3D, visualisation climatique, changement climatique, température globale, données climat",
+    "NASA GISTEMP, anomalies de température, température globale NASA, climat, globe 3D, visualisation climatique, changement climatique, température globale, données climat",
   authors: [{ name: "Johan Lorck" }],
   creator: "Johan Lorck",
   openGraph: {
