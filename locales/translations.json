@@ -1,0 +1,404 @@
+{
+  "fr": {
+    "site": {
+      "title": "NASA GISTEMP Viewer – Visualisation 3D des anomalies climatiques",
+      "description": "Explorez les anomalies de température globale depuis 1880 avec un globe 3D interactif. Données NASA GISTEMP et NOAA, visualisation moderne en React/Next.js.",
+      "keywords": "NASA GISTEMP, anomalies de température, température globale NASA, climat, globe 3D, visualisation climatique, changement climatique, température globale, données climat"
+    },
+    "nav": {
+      "logo": "Nasa Gistemp Viewer",
+      "help": "Mode d'emploi",
+      "data": "Données",
+      "about": "À propos"
+    },
+    "page": {
+      "dataTitle": "Données mensuelles de température globale",
+      "aboutTitle": "À propos",
+      "aboutText1": "Visualisation interactive des anomalies de température NASA GISTEMP (1880-présent)",
+      "aboutText2": "Construit avec Next.js 15 & Three.js par",
+      "aboutText3": "Voir le code source"
+    },
+    "table": {
+      "chooseRegion": "Choisir la région :",
+      "global": "Global",
+      "north": "Hémisphère Nord",
+      "south": "Hémisphère Sud",
+      "referencePeriod": "Période de référence :",
+      "nasa": "1951-1980 (NASA)",
+      "preindustrial": "1880-1899 (Préindustriel)",
+      "modern": "1991-2020 (Moderne)",
+      "loading": "Données en cours de chargement ou indisponibles..."
+    },
+    "help": {
+      "title": "Mode d'emploi",
+      "subtitle": "Guide d'utilisation de l'application",
+      "temporalNav": {
+        "title": "Navigation temporelle",
+        "description": "Utilisez les champs de saisie dans le panneau de gauche pour explorer les données climatiques :",
+        "yearSelection": "Sélection d'année",
+        "yearDesc": "Choisissez une année entre 1880 et aujourd'hui pour voir l'évolution du climat",
+        "monthSelection": "Sélection du mois",
+        "monthDesc": "Naviguez mois par mois (01-12) pour observer les variations saisonnières"
+      },
+      "climateData": {
+        "title": "Données climatiques",
+        "description": "Cliquez sur les cartes colorées pour obtenir des explications détaillées :",
+        "global": "Global (rose)",
+        "globalDesc": "Anomalie de température moyenne globale par rapport à 1951-1980",
+        "north": "Hémisphère Nord (vert)",
+        "northDesc": "Température de l'hémisphère nord, généralement plus variable",
+        "south": "Hémisphère Sud (orange)",
+        "southDesc": "Température de l'hémisphère sud, dominé par les océans",
+        "oni": "ONI (bleu)",
+        "oniDesc": "Indice océanique Niño - indicateur d'El Niño et La Niña"
+      },
+      "globe": {
+        "title": "Globe interactif 3D",
+        "rotation": "Rotation manuelle",
+        "rotationDesc": "Cliquez et faites glisser pour faire tourner le globe dans toutes les directions",
+        "zoom": "Zoom",
+        "zoomDesc": "Utilisez la molette de la souris ou le pincement sur mobile pour zoomer",
+        "autoRotation": "Rotation automatique",
+        "autoRotationDesc": "Activez/désactivez la rotation automatique avec le bouton paramètres (⚙️)"
+      },
+      "colorScale": {
+        "title": "Échelle des températures",
+        "description": "Les couleurs du globe représentent les anomalies de température :",
+        "cold": "Bleu (-5°C)",
+        "hot": "Rouge (+5°C)",
+        "explanation": "Les zones bleues sont plus froides que la moyenne 1951-1980, les zones rouges sont plus chaudes. Le blanc représente des températures proches de la normale."
+      },
+      "dataTable": {
+        "title": "Table de données interactive",
+        "description": "Explorez les données sous forme de tableau dans la section \"Données\" :",
+        "regionSelection": "Sélection de région",
+        "regionDesc": "Choisissez entre Global, Hémisphère Nord ou Hémisphère Sud dans le menu déroulant",
+        "columnSort": "Tri des colonnes",
+        "columnSortDesc": "Cliquez sur n'importe quel en-tête de colonne pour trier (ex: mois du plus chaud au plus froid)",
+        "colorCode": "Code couleur",
+        "colorCodeDesc": "Les cellules sont colorées : rouge pour les anomalies chaudes, bleu pour les froides",
+        "tip": "💡 Astuce : Cliquez sur \"Jan\", \"Feb\", etc. pour voir quels mois ont été les plus chauds une année donnée !"
+      },
+      "sources": {
+        "title": "Sources des données",
+        "nasa": "NASA GISTEMP",
+        "nasaDesc": "Données de température de surface terrestre et océanique (GISS)",
+        "noaa": "NOAA CPC",
+        "noaaDesc": "Indices océaniques Niño (ONI) pour El Niño/La Niña",
+        "note": "Toutes les données sont automatiquement mises à jour et mises en cache pour de meilleures performances."
+      }
+    },
+    "globe": {
+      "inputs": {
+        "yearPlaceholder": "Année",
+        "monthPlaceholder": "Mois"
+      },
+      "modals": {
+        "global": {
+          "title": "Température Globale",
+          "description": "Anomalie de température moyenne globale",
+          "details": "au-dessus de la moyenne 1951-1980",
+          "source": "NASA GISTEMP",
+          "explanation": "Les données GISTEMP (Goddard Institute for Space Studies Surface Temperature Analysis) représentent les anomalies de température par rapport à la période de référence 1951-1980. Les valeurs positives indiquent des températures supérieures à la moyenne de cette période de référence."
+        },
+        "north": {
+          "title": "Hémisphère Nord",
+          "description": "Anomalie de température de l'hémisphère nord",
+          "details": "au-dessus de la moyenne 1951-1980",
+          "source": "NASA GISTEMP",
+          "explanation": "Cette mesure couvre toutes les terres et océans situés au nord de l'équateur. L'hémisphère nord contient la majorité des masses continentales et montre généralement des variations plus importantes que l'hémisphère sud."
+        },
+        "south": {
+          "title": "Hémisphère Sud",
+          "description": "Anomalie de température de l'hémisphère sud",
+          "details": "au-dessus de la moyenne 1951-1980",
+          "source": "NASA GISTEMP",
+          "explanation": "Cette mesure couvre toutes les terres et océans situés au sud de l'équateur. L'hémisphère sud, dominé par les océans, tend à avoir des variations de température plus modérées que l'hémisphère nord."
+        },
+        "oni": {
+          "title": "Indice Océanique Niño (ONI)",
+          "description": "Indicateur d'El Niño et La Niña",
+          "details": "par rapport à la moyenne de référence",
+          "source": "NOAA Climate Prediction Center",
+          "explanation": "L'ONI (Oceanic Niño Index) mesure les anomalies de température de surface de la mer dans la région Niño 3.4 du Pacifique équatorial (5°N-5°S, 120°-170°W). Basé sur une moyenne mobile de 3 mois des données ERSSTv5, l'ONI utilise des périodes de référence de 30 ans mises à jour tous les 5 ans. Des valeurs ≥ +0.5°C indiquent des conditions El Niño, ≤ -0.5°C indiquent La Niña. Ici, la valeur ONI affichée correspond au 3e mois de la moyenne mobile, permettant d'afficher les données du mois en cours et de tenir compte du décalage temporel de 2-3 mois entre les anomalies océaniques et leurs effets climatiques."
+        },
+        "explanation": "Explication"
+      },
+      "labels": {
+        "global": "Global",
+        "north": "Nord",
+        "south": "Sud",
+        "oni": "ONI"
+      },
+      "controls": {
+        "openControls": "Ouvrir les commandes",
+        "autoRotation": "Rotation automatique",
+        "showChart": "Afficher le graphique"
+      },
+      "sections": {
+        "dataPeriod": "Période de Données",
+        "dataPeriodShort": "Période",
+        "climateData": "Données Climatiques",
+        "dataShort": "Données"
+      },
+      "temperatureScale": {
+        "title": "Anomalies de température"
+      }
+    },
+    "chart": {
+      "tooltip": {
+        "currentYear": "(Année courante)"
+      },
+      "controls": {
+        "monthly": "Mensuel",
+        "annual": "Annuel"
+      },
+      "titles": {
+        "annualAnomalies": "Anomalies Annuelles",
+        "monthlyAnomalies": "Anomalies pour"
+      },
+      "regions": {
+        "global": "Global",
+        "north": "Hémisphère Nord",
+        "south": "Hémisphère Sud"
+      },
+      "footer": {
+        "currentYearHighlight": "Année courante",
+        "highlighted": "en surbrillance",
+        "chartFrom": "Graphique issu de"
+      },
+      "events": {
+        "krakatoa": "Éruption Krakatoa",
+        "pinatubo": "Éruption Mont Pinatubo",
+        "elNinoIntense": "El Niño intense",
+        "elNinoRecord": "El Niño record"
+      },
+      "ui": {
+        "export": "Exporter",
+        "currentYearCalculated": "Année courante calculée",
+        "annualData": "Données annuelles",
+        "monthlyData": "Données mensuelles",
+        "loadingData": "Chargement des données...",
+        "referenceNasa": "1951-1980 (NASA)",
+        "referencePreindustrial": "1880-1899 (Préindustriel)",
+        "referenceModern": "1991-2020 (Moderne)",
+        "trendPerDecade": "Tendance/décennie",
+        "monthNames": {
+          "1": "Janvier",
+          "2": "Février",
+          "3": "Mars",
+          "4": "Avril",
+          "5": "Mai",
+          "6": "Juin",
+          "7": "Juillet",
+          "8": "Août",
+          "9": "Septembre",
+          "10": "Octobre",
+          "11": "Novembre",
+          "12": "Décembre"
+        }
+      }
+    }
+  },
+  "en": {
+    "site": {
+      "title": "NASA GISTEMP Viewer – 3D Climate Anomaly Visualization",
+      "description": "Explore global temperature anomalies since 1880 with an interactive 3D globe. NASA GISTEMP and NOAA data, modern visualization in React/Next.js.",
+      "keywords": "NASA GISTEMP, temperature anomalies, NASA global temperature, climate, 3D globe, climate visualization, climate change, global temperature, climate data"
+    },
+    "nav": {
+      "logo": "Nasa Gistemp Viewer",
+      "help": "User Guide",
+      "data": "Data",
+      "about": "About"
+    },
+    "page": {
+      "dataTitle": "Monthly Global Temperature Data",
+      "aboutTitle": "About",
+      "aboutText1": "Interactive visualization of NASA GISTEMP temperature anomalies (1880-present)",
+      "aboutText2": "Built with Next.js 15 & Three.js by",
+      "aboutText3": "View source code"
+    },
+    "table": {
+      "chooseRegion": "Choose region:",
+      "global": "Global",
+      "north": "Northern Hemisphere",
+      "south": "Southern Hemisphere",
+      "referencePeriod": "Reference period:",
+      "nasa": "1951-1980 (NASA)",
+      "preindustrial": "1880-1899 (Pre-industrial)",
+      "modern": "1991-2020 (Modern)",
+      "loading": "Data loading or unavailable..."
+    },
+    "help": {
+      "title": "User Guide",
+      "subtitle": "Application usage guide",
+      "temporalNav": {
+        "title": "Time Navigation",
+        "description": "Use the input fields in the left panel to explore climate data:",
+        "yearSelection": "Year Selection",
+        "yearDesc": "Choose a year between 1880 and today to see climate evolution",
+        "monthSelection": "Month Selection",
+        "monthDesc": "Navigate month by month (01-12) to observe seasonal variations"
+      },
+      "climateData": {
+        "title": "Climate Data",
+        "description": "Click on colored cards to get detailed explanations:",
+        "global": "Global (pink)",
+        "globalDesc": "Global mean temperature anomaly relative to 1951-1980",
+        "north": "Northern Hemisphere (green)",
+        "northDesc": "Northern hemisphere temperature, generally more variable",
+        "south": "Southern Hemisphere (orange)",
+        "southDesc": "Southern hemisphere temperature, dominated by oceans",
+        "oni": "ONI (blue)",
+        "oniDesc": "Oceanic Niño Index - El Niño and La Niña indicator"
+      },
+      "globe": {
+        "title": "Interactive 3D Globe",
+        "rotation": "Manual Rotation",
+        "rotationDesc": "Click and drag to rotate the globe in all directions",
+        "zoom": "Zoom",
+        "zoomDesc": "Use mouse wheel or pinch on mobile to zoom",
+        "autoRotation": "Auto Rotation",
+        "autoRotationDesc": "Enable/disable automatic rotation with the settings button (⚙️)"
+      },
+      "colorScale": {
+        "title": "Temperature Scale",
+        "description": "Globe colors represent temperature anomalies:",
+        "cold": "Blue (-5°C)",
+        "hot": "Red (+5°C)",
+        "explanation": "Blue areas are cooler than the 1951-1980 average, red areas are warmer. White represents near-normal temperatures."
+      },
+      "dataTable": {
+        "title": "Interactive Data Table",
+        "description": "Explore data in table format in the \"Data\" section:",
+        "regionSelection": "Region Selection",
+        "regionDesc": "Choose between Global, Northern Hemisphere or Southern Hemisphere in the dropdown",
+        "columnSort": "Column Sorting",
+        "columnSortDesc": "Click on any column header to sort (e.g., warmest to coolest months)",
+        "colorCode": "Color Code",
+        "colorCodeDesc": "Cells are colored: red for warm anomalies, blue for cold ones",
+        "tip": "💡 Tip: Click on \"Jan\", \"Feb\", etc. to see which months were warmest in a given year!"
+      },
+      "sources": {
+        "title": "Data Sources",
+        "nasa": "NASA GISTEMP",
+        "nasaDesc": "Land and ocean surface temperature data (GISS)",
+        "noaa": "NOAA CPC",
+        "noaaDesc": "Oceanic Niño Indices (ONI) for El Niño/La Niña",
+        "note": "All data is automatically updated and cached for better performance."
+      }
+    },
+    "globe": {
+      "inputs": {
+        "yearPlaceholder": "Year",
+        "monthPlaceholder": "Month"
+      },
+      "modals": {
+        "global": {
+          "title": "Global Temperature",
+          "description": "Global mean temperature anomaly",
+          "details": "above the 1951-1980 average",
+          "source": "NASA GISTEMP",
+          "explanation": "GISTEMP (Goddard Institute for Space Studies Surface Temperature Analysis) data represents temperature anomalies relative to the 1951-1980 reference period. Positive values indicate temperatures above the average for this reference period."
+        },
+        "north": {
+          "title": "Northern Hemisphere",
+          "description": "Northern hemisphere temperature anomaly",
+          "details": "above the 1951-1980 average",
+          "source": "NASA GISTEMP",
+          "explanation": "This measurement covers all land and ocean areas north of the equator. The northern hemisphere contains most of the continental landmasses and generally shows greater variations than the southern hemisphere."
+        },
+        "south": {
+          "title": "Southern Hemisphere",
+          "description": "Southern hemisphere temperature anomaly",
+          "details": "above the 1951-1980 average",
+          "source": "NASA GISTEMP",
+          "explanation": "This measurement covers all land and ocean areas south of the equator. The southern hemisphere, dominated by oceans, tends to have more moderate temperature variations than the northern hemisphere."
+        },
+        "oni": {
+          "title": "Oceanic Niño Index (ONI)",
+          "description": "El Niño and La Niña indicator",
+          "details": "relative to the reference average",
+          "source": "NOAA Climate Prediction Center",
+          "explanation": "The ONI (Oceanic Niño Index) measures sea surface temperature anomalies in the Niño 3.4 region of the equatorial Pacific (5°N-5°S, 120°-170°W). Based on a 3-month running mean of ERSSTv5 data, the ONI uses 30-year reference periods updated every 5 years. Values ≥ +0.5°C indicate El Niño conditions, ≤ -0.5°C indicate La Niña. Here, the ONI value displayed corresponds to the 3rd month of the running mean, allowing current month data to be displayed and accounting for the 2-3 month time lag between oceanic anomalies and their climatic effects."
+        },
+        "explanation": "Explanation"
+      },
+      "labels": {
+        "global": "Global",
+        "north": "North",
+        "south": "South",
+        "oni": "ONI"
+      },
+      "controls": {
+        "openControls": "Open controls",
+        "autoRotation": "Auto rotation",
+        "showChart": "Show chart"
+      },
+      "sections": {
+        "dataPeriod": "Data Period",
+        "dataPeriodShort": "Period",
+        "climateData": "Climate Data",
+        "dataShort": "Data"
+      },
+      "temperatureScale": {
+        "title": "Temperature anomalies"
+      }
+    },
+    "chart": {
+      "tooltip": {
+        "currentYear": "(Current year)"
+      },
+      "controls": {
+        "monthly": "Monthly",
+        "annual": "Annual"
+      },
+      "titles": {
+        "annualAnomalies": "Annual Anomalies",
+        "monthlyAnomalies": "Anomalies for"
+      },
+      "regions": {
+        "global": "Global",
+        "north": "Northern Hemisphere",
+        "south": "Southern Hemisphere"
+      },
+      "footer": {
+        "currentYearHighlight": "Current year",
+        "highlighted": "highlighted",
+        "chartFrom": "Chart from"
+      },
+      "events": {
+        "krakatoa": "Krakatoa Eruption",
+        "pinatubo": "Mount Pinatubo Eruption",
+        "elNinoIntense": "Intense El Niño",
+        "elNinoRecord": "Record El Niño"
+      },
+      "ui": {
+        "export": "Export",
+        "currentYearCalculated": "Current year calculated",
+        "annualData": "Annual data",
+        "monthlyData": "Monthly data",
+        "loadingData": "Loading data...",
+        "referenceNasa": "1951-1980 (NASA)",
+        "referencePreindustrial": "1880-1899 (Pre-industrial)",
+        "referenceModern": "1991-2020 (Modern)",
+        "trendPerDecade": "Trend/decade",
+        "monthNames": {
+          "1": "January",
+          "2": "February",
+          "3": "March",
+          "4": "April",
+          "5": "May",
+          "6": "June",
+          "7": "July",
+          "8": "August",
+          "9": "September",
+          "10": "October",
+          "11": "November",
+          "12": "December"
+        }
+      }
+    }
+  }
+}

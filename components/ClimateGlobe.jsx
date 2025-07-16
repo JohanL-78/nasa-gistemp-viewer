@@ -8,6 +8,7 @@ import { Calendar, Globe2, Thermometer, Snowflake, Mountain, Waves, Settings, X,
 import * as THREE from 'three';
 import { getTemperatureDataAction } from '@/lib/actions';
 import TemperatureChart from './TemperatureChart';
+import { useTranslation } from '@/hooks/useTranslation';
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
@@ -82,56 +83,57 @@ const ModernInput = ({ value, onChange, placeholder, icon: Icon }) => {
 
 const DetailModal = ({ isOpen, onClose, data, type, year, month }) => {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   const getModalContent = () => {
     switch (type) {
       case 'global':
         return {
-          title: 'Température Globale',
+          title: t('globe.modals.global.title'),
           icon: Globe2,
           color: '#ff0080',
           value: data?.global,
-          description: 'Anomalie de température moyenne globale',
-          details: `${data?.global > 0 ? '+' : ''}${data?.global?.toFixed(2)}°C au-dessus de la moyenne 1951-1980`,
-          source: 'NASA GISTEMP',
+          description: t('globe.modals.global.description'),
+          details: `${data?.global > 0 ? '+' : ''}${data?.global?.toFixed(2)}°C ${t('globe.modals.global.details')}`,
+          source: t('globe.modals.global.source'),
           sourceUrl: 'https://data.giss.nasa.gov/gistemp/',
-          explanation: 'Les données GISTEMP (Goddard Institute for Space Studies Surface Temperature Analysis) représentent les anomalies de température par rapport à la période de référence 1951-1980. Les valeurs positives indiquent des températures supérieures à la moyenne de cette période de référence.'
+          explanation: t('globe.modals.global.explanation')
         };
       case 'north':
         return {
-          title: 'Hémisphère Nord',
+          title: t('globe.modals.north.title'),
           icon: Snowflake,
           color: '#00ff88',
           value: data?.north,
-          description: 'Anomalie de température de l\'hémisphère nord',
-          details: `${data?.north > 0 ? '+' : ''}${data?.north?.toFixed(2)}°C au-dessus de la moyenne 1951-1980`,
-          source: 'NASA GISTEMP',
+          description: t('globe.modals.north.description'),
+          details: `${data?.north > 0 ? '+' : ''}${data?.north?.toFixed(2)}°C ${t('globe.modals.north.details')}`,
+          source: t('globe.modals.north.source'),
           sourceUrl: 'https://data.giss.nasa.gov/gistemp/',
-          explanation: 'Cette mesure couvre toutes les terres et océans situés au nord de l\'équateur. L\'hémisphère nord contient la majorité des masses continentales et montre généralement des variations plus importantes que l\'hémisphère sud.'
+          explanation: t('globe.modals.north.explanation')
         };
       case 'south':
         return {
-          title: 'Hémisphère Sud',
+          title: t('globe.modals.south.title'),
           icon: Mountain,
           color: '#ff8c00',
           value: data?.south,
-          description: 'Anomalie de température de l\'hémisphère sud',
-          details: `${data?.south > 0 ? '+' : ''}${data?.south?.toFixed(2)}°C au-dessus de la moyenne 1951-1980`,
-          source: 'NASA GISTEMP',
+          description: t('globe.modals.south.description'),
+          details: `${data?.south > 0 ? '+' : ''}${data?.south?.toFixed(2)}°C ${t('globe.modals.south.details')}`,
+          source: t('globe.modals.south.source'),
           sourceUrl: 'https://data.giss.nasa.gov/gistemp/',
-          explanation: 'Cette mesure couvre toutes les terres et océans situés au sud de l\'équateur. L\'hémisphère sud, dominé par les océans, tend à avoir des variations de température plus modérées que l\'hémisphère nord.'
+          explanation: t('globe.modals.south.explanation')
         };
       case 'oni':
         return {
-          title: 'Indice Océanique Niño (ONI)',
+          title: t('globe.modals.oni.title'),
           icon: Waves,
           color: '#00d4ff',
           value: data?.oni,
-          description: 'Indicateur d\'El Niño et La Niña',
-          details: `${data?.oni > 0 ? '+' : ''}${data?.oni?.toFixed(2)}°C par rapport à la moyenne de référence`,
-          source: 'NOAA Climate Prediction Center',
+          description: t('globe.modals.oni.description'),
+          details: `${data?.oni > 0 ? '+' : ''}${data?.oni?.toFixed(2)}°C ${t('globe.modals.oni.details')}`,
+          source: t('globe.modals.oni.source'),
           sourceUrl: 'https://www.cpc.ncep.noaa.gov/data/indices/',
-          explanation: 'L\'ONI (Oceanic Niño Index) mesure les anomalies de température de surface de la mer dans la région Niño 3.4 du Pacifique équatorial (5°N-5°S, 120°-170°W). Basé sur une moyenne mobile de 3 mois des données ERSSTv5, l\'ONI utilise des périodes de référence de 30 ans mises à jour tous les 5 ans. Des valeurs ≥ +0.5°C indiquent des conditions El Niño, ≤ -0.5°C indiquent La Niña. Ici, la valeur ONI affichée correspond au 3e mois de la moyenne mobile, permettant d\'afficher les données du mois en cours et de tenir compte du décalage temporel de 2-3 mois entre les anomalies océaniques et leurs effets climatiques.'
+          explanation: t('globe.modals.oni.explanation')
         };
       default:
         return null;
@@ -294,7 +296,7 @@ const DetailModal = ({ isOpen, onClose, data, type, year, month }) => {
               }}>
                 <Info size={16} color={content.color} />
                 <span style={{ fontSize: '14px', fontWeight: '600', color: content.color }}>
-                  Explication
+                  {t('globe.modals.explanation') || 'Explanation'}
                 </span>
               </div>
               <p style={{
@@ -341,6 +343,7 @@ const DetailModal = ({ isOpen, onClose, data, type, year, month }) => {
 
 const TemperatureScale = () => {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   
   return (
     <motion.div
@@ -384,7 +387,7 @@ const TemperatureScale = () => {
         </motion.div>
         
         <span style={{ fontWeight: '600', marginRight: isMobile ? '4px' : '8px' }}>
-          Anomalies de température
+          {t('globe.temperatureScale.title') || 'Temperature anomalies'}
         </span>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '4px' : '8px' }}>
@@ -555,80 +558,90 @@ const Globe = ({ year, month, isVisible, autoRotate, onLoad, globeRef }) => {
   });
 
   useEffect(() => {
-    const key = `${year}_${month}`;
-    if (!baseMeshRef.current || isLoading || lastLoadedKey === key) return;
-    setIsLoading(true);
-    const loader = new THREE.TextureLoader();
-    const url = `/textures/gistemp_${key}.png?i=${instanceId}&t=${Date.now()}`;
-    const setupTexture = (tex) => {
-      tex.magFilter = THREE.LinearFilter;
-      tex.minFilter = THREE.LinearMipMapLinearFilter;
-      tex.wrapS = THREE.ClampToEdgeWrapping;
-      tex.wrapT = THREE.ClampToEdgeWrapping;
-      tex.flipY = true;
-      tex.needsUpdate = true;
-      tex.uuid = THREE.MathUtils.generateUUID();
-    };
+  const key = `${year}_${month}`;
+  // On ne skip plus parce que baseMeshRef n'est pas encore monté
+  if (isLoading || lastLoadedKey === key) return;
+  setIsLoading(true);
 
-    loader.load(
-      url,
-      (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.magFilter = THREE.LinearFilter;
-        tex.minFilter = THREE.LinearFilter;
-        tex.generateMipmaps = false;
-        tex.wrapS = THREE.ClampToEdgeWrapping;
-        tex.wrapT = THREE.ClampToEdgeWrapping;
-        tex.flipY = true;
-        tex.needsUpdate = true;
-        tex.uuid = THREE.MathUtils.generateUUID();
+  const loader = new THREE.TextureLoader();
+  const timestamp = Date.now();
+  const url = `/textures/gistemp_${key}.png?i=${instanceId}&time=${timestamp}`;
 
-        setTemperatureTexture(tex);
+  // success
+  loader.load(
+    url,
+    (tex) => {
+      // initialisation générique du texture
+      tex.colorSpace   = THREE.SRGBColorSpace;
+      tex.magFilter    = THREE.LinearFilter;
+      tex.minFilter    = THREE.LinearFilter;
+      tex.generateMipmaps = false;
+      tex.wrapS        = THREE.ClampToEdgeWrapping;
+      tex.wrapT        = THREE.ClampToEdgeWrapping;
+      tex.flipY        = true;
+      tex.needsUpdate  = true;
+      tex.uuid         = THREE.MathUtils.generateUUID();
+
+      setTemperatureTexture(tex);
+
+      // on ne touche au material que si le mesh existe
+      if (baseMeshRef.current) {
         const mat = baseMeshRef.current.material;
         if (mat.map) mat.map.dispose();
-        mat.map = tex;
+        mat.map       = tex;
         mat.needsUpdate = true;
-        mat.uuid = THREE.MathUtils.generateUUID();
-        setLastLoadedKey(key);
-        setIsLoading(false);
-      },
-      undefined,
-      () => {
-        loader.load(`/textures/default_earth.jpg?i=${instanceId}&t=${Date.now()}`, (tex) => {
-          tex.colorSpace = THREE.SRGBColorSpace;
-          tex.magFilter = THREE.LinearFilter;
-          tex.minFilter = THREE.LinearFilter;
+        mat.uuid      = THREE.MathUtils.generateUUID();
+      }
+
+      setLastLoadedKey(key);
+      setIsLoading(false);
+    },
+    undefined,
+    // error → fallback
+    () => {
+      loader.load(
+        `/textures/default_earth.jpg?i=${instanceId}&time=${timestamp}`,
+        (tex) => {
+          tex.colorSpace   = THREE.SRGBColorSpace;
+          tex.magFilter    = THREE.LinearFilter;
+          tex.minFilter    = THREE.LinearFilter;
           tex.generateMipmaps = false;
-          tex.wrapS = THREE.ClampToEdgeWrapping;
-          tex.wrapT = THREE.ClampToEdgeWrapping;
-          tex.flipY = true;
-          tex.needsUpdate = true;
-          tex.uuid = THREE.MathUtils.generateUUID();
+          tex.wrapS        = THREE.ClampToEdgeWrapping;
+          tex.wrapT        = THREE.ClampToEdgeWrapping;
+          tex.flipY        = true;
+          tex.needsUpdate  = true;
+          tex.uuid         = THREE.MathUtils.generateUUID();
 
           setTemperatureTexture(tex);
-          const mat = baseMeshRef.current.material;
-          if (mat.map) mat.map.dispose();
-          mat.map = tex;
-          mat.needsUpdate = true;
-          mat.uuid = THREE.MathUtils.generateUUID();
+
+          if (baseMeshRef.current) {
+            const mat = baseMeshRef.current.material;
+            if (mat.map) mat.map.dispose();
+            mat.map       = tex;
+            mat.needsUpdate = true;
+            mat.uuid      = THREE.MathUtils.generateUUID();
+          }
+
           setLastLoadedKey(key);
           setIsLoading(false);
-        });
-      }
-    );
-
-    if (onLoad && lastLoadedKey !== key) {
-      getTemperatureDataAction(year, month)
-        .then((res) => onLoad(res ?? {}))
-        .catch(() => setIsLoading(false));
+        }
+      );
     }
+  );
 
-  }, [year, month, onLoad, lastLoadedKey, isLoading, instanceId]);
+  if (onLoad && lastLoadedKey !== key) {
+    getTemperatureDataAction(year, month)
+      .then(res => onLoad(res ?? {}))
+      .catch(() => setIsLoading(false));
+  }
+}, [year, month, onLoad, lastLoadedKey, isLoading, instanceId]);
+
 
   useEffect(() => {
     if (overlayTexture) return;
     const loader = new THREE.TextureLoader();
-    loader.load(`/textures/overlay.png?i=${instanceId}&t=${Date.now()}`, (tex) => {
+    const timestamp = Date.now();
+    loader.load(`/textures/overlay.png?i=${instanceId}&time=${timestamp}`, (tex) => {
       tex.magFilter = THREE.LinearFilter;
       tex.minFilter = THREE.LinearMipMapLinearFilter;
       tex.anisotropy = 8;
@@ -680,6 +693,7 @@ const Scene = ({ children }) => (
 
 export default function CanvasGlobe({ availableDates }) {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
   const [autoRotate, setAutoRotate] = useState(true);
   const [controlsOpen, setControlsOpen] = useState(true);
   const [year, setYear] = useState(availableDates.current_year);
@@ -856,20 +870,20 @@ export default function CanvasGlobe({ availableDates }) {
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>
-              {isMobile ? 'Période' : 'Période de Données'}
+              {isMobile ? t('globe.sections.dataPeriodShort') : t('globe.sections.dataPeriod')}
             </h3>
           </div>
 
           <ModernInput 
             value={year} 
             onChange={handleYearChange} 
-            placeholder="Année" 
+            placeholder={t('globe.inputs.yearPlaceholder')} 
             icon={Calendar}
           />
           <ModernInput 
             value={month} 
             onChange={handleMonthChange} 
-            placeholder="Mois" 
+            placeholder={t('globe.inputs.monthPlaceholder')} 
             icon={Calendar}
           />
         </motion.div>
@@ -916,7 +930,7 @@ export default function CanvasGlobe({ availableDates }) {
               color: '#fff',
               flex: 1
             }}>
-              {isMobile ? 'Données' : 'Données Climatiques'}
+              {isMobile ? (t('globe.sections.dataShort') || 'Data') : (t('globe.sections.climateData') || 'Climate Data')}
             </h4>
           </div>
           
@@ -968,7 +982,7 @@ export default function CanvasGlobe({ availableDates }) {
             >
               <BarChart3 size={isMobile ? 12 : 14} />
             </motion.div>
-            {isMobile ? 'Graphique' : 'Voir Graphique'}
+            {isMobile ? (t('globe.controls.showChart') || 'Chart') : (t('globe.controls.showChart') || 'Show Chart')}
           </motion.button>
           
           <div style={{
@@ -978,7 +992,7 @@ export default function CanvasGlobe({ availableDates }) {
           }}>
             <DataCard 
               icon={Globe2} 
-              label="Global" 
+              label={t('globe.labels.global')} 
               value={isLoadingTemps ? null : temps.global} 
               color="#ff0080"
               onClick={() => handleCardClick('global')}
@@ -987,7 +1001,7 @@ export default function CanvasGlobe({ availableDates }) {
             
             <DataCard 
               icon={Snowflake} 
-              label="Nord" 
+              label={t('globe.labels.north')} 
               value={isLoadingTemps ? null : temps.north} 
               color="#00ff88"
               onClick={() => handleCardClick('north')}
@@ -996,7 +1010,7 @@ export default function CanvasGlobe({ availableDates }) {
             
             <DataCard 
               icon={Mountain} 
-              label="Sud" 
+              label={t('globe.labels.south')} 
               value={isLoadingTemps ? null : temps.south} 
               color="#ff8c00"
               onClick={() => handleCardClick('south')}
@@ -1005,7 +1019,7 @@ export default function CanvasGlobe({ availableDates }) {
             
             <DataCard 
               icon={Waves} 
-              label="ONI" 
+              label={t('globe.labels.oni')} 
               value={isLoadingTemps ? null : temps.oni} 
               color="#00d4ff"
               onClick={() => handleCardClick('oni')}
@@ -1026,7 +1040,7 @@ export default function CanvasGlobe({ availableDates }) {
       }}>
         <motion.button 
           onClick={() => setControlsOpen((o) => !o)} 
-          aria-label="Ouvrir les commandes"
+          aria-label={t('globe.controls.openControls')}
           whileHover={{ scale: 1.1, rotate: 180 }}
           whileTap={{ scale: 0.9 }}
           animate={{
@@ -1110,7 +1124,7 @@ export default function CanvasGlobe({ availableDates }) {
                   }} 
                 />
                 <span style={{ fontSize: '14px', fontWeight: '500' }}>
-                  Rotation automatique
+                  {t('globe.controls.autoRotation') || 'Auto rotation'}
                 </span>
               </motion.label>
             </motion.div>
@@ -1168,6 +1182,36 @@ export default function CanvasGlobe({ availableDates }) {
         onClose={() => setChartOpen(false)}
         tableData={tableData}
         currentMonth={parseInt(month)}
+        translations={{
+          monthly: t('chart.controls.monthly') || "Monthly",
+          annual: t('chart.controls.annual') || "Annual",
+          annualAnomalies: t('chart.titles.annualAnomalies') || "Annual Anomalies",
+          monthlyAnomalies: t('chart.titles.monthlyAnomalies') || "Anomalies for",
+          global: t('chart.regions.global') || "Global",
+          north: t('chart.regions.north') || "Northern Hemisphere",
+          south: t('chart.regions.south') || "Southern Hemisphere",
+          currentYearHighlight: t('chart.footer.currentYearHighlight') || "Current year",
+          highlighted: t('chart.footer.highlighted') || "highlighted",
+          chartFrom: t('chart.footer.chartFrom') || "Chart from",
+          krakatoa: t('chart.events.krakatoa') || "Krakatoa Eruption",
+          pinatubo: t('chart.events.pinatubo') || "Mount Pinatubo Eruption",
+          elNinoIntense: t('chart.events.elNinoIntense') || "Intense El Niño",
+          elNinoRecord: t('chart.events.elNinoRecord') || "Record El Niño",
+          export: t('chart.ui.export') || "Export",
+          currentYearCalculated: t('chart.ui.currentYearCalculated') || "Current year calculated",
+          annualData: t('chart.ui.annualData') || "Annual data",
+          monthlyData: t('chart.ui.monthlyData') || "Monthly data",
+          loadingData: t('chart.ui.loadingData') || "Loading data...",
+          referenceNasa: t('chart.ui.referenceNasa') || "1951-1980 (NASA)",
+          referencePreindustrial: t('chart.ui.referencePreindustrial') || "1880-1899 (Pre-industrial)",
+          referenceModern: t('chart.ui.referenceModern') || "1991-2020 (Modern)",
+          trendPerDecade: t('chart.ui.trendPerDecade') || "Trend/decade",
+          monthNames: t('chart.ui.monthNames') || {
+            1: "January", 2: "February", 3: "March", 4: "April", 5: "May", 6: "June",
+            7: "July", 8: "August", 9: "September", 10: "October", 11: "November", 12: "December"
+          },
+          currentYearTooltip: t('chart.tooltip.currentYear') || "(Current year)"
+        }}
       />
     </div>
   );

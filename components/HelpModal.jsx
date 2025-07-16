@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Globe2, Thermometer, MousePointer, Palette, Database, Info, ExternalLink } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
@@ -130,6 +131,7 @@ const FeatureCard = ({ icon: Icon, title, description, color }) => {
 
 export default function HelpModal({ isOpen, onClose }) {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   return (
     <AnimatePresence>
@@ -206,10 +208,10 @@ export default function HelpModal({ isOpen, onClose }) {
                 </motion.div>
                 <div>
                   <h2 style={{ margin: 0, fontSize: isMobile ? '18px' : '22px', fontWeight: '700' }}>
-                    Mode d'emploi
+                    {t('help.title')}
                   </h2>
                   <p style={{ margin: 0, fontSize: '14px', color: '#bbb' }}>
-                    Guide d'utilisation de l'application
+                    {t('help.subtitle')}
                   </p>
                 </div>
               </div>
@@ -240,81 +242,81 @@ export default function HelpModal({ isOpen, onClose }) {
             <div style={{ fontSize: isMobile ? '13px' : '14px', lineHeight: '1.6' }}>
               
               {/* Navigation temporelle */}
-              <HelpSection icon={Calendar} title="Navigation temporelle" color="#64b5f6">
+              <HelpSection icon={Calendar} title={t('help.temporalNav.title')} color="#64b5f6">
                 <p style={{ marginBottom: '12px' }}>
-                  Utilisez les champs de saisie dans le panneau de gauche pour explorer les données climatiques :
+                  {t('help.temporalNav.description')}
                 </p>
                 <FeatureCard 
                   icon={Calendar}
-                  title="Sélection d'année"
-                  description="Choisissez une année entre 1880 et aujourd'hui pour voir l'évolution du climat"
+                  title={t('help.temporalNav.yearSelection')}
+                  description={t('help.temporalNav.yearDesc')}
                   color="#64b5f6"
                 />
                 <FeatureCard 
                   icon={Calendar}
-                  title="Sélection du mois"
-                  description="Naviguez mois par mois (01-12) pour observer les variations saisonnières"
+                  title={t('help.temporalNav.monthSelection')}
+                  description={t('help.temporalNav.monthDesc')}
                   color="#64b5f6"
                 />
               </HelpSection>
 
-              {/* Données climatiques */}
-              <HelpSection icon={Thermometer} title="Données climatiques" color="#ff6b6b">
+              {/* Climate Data */}
+              <HelpSection icon={Thermometer} title={t('help.climateData.title')} color="#ff6b6b">
                 <p style={{ marginBottom: '12px' }}>
-                  Cliquez sur les cartes colorées pour obtenir des explications détaillées :
+                  {t('help.climateData.description')}
                 </p>
                 <FeatureCard 
                   icon={Globe2}
-                  title="Global (rose)"
-                  description="Anomalie de température moyenne globale par rapport à 1951-1980"
+                  title={t('help.climateData.global')}
+                  description={t('help.climateData.globalDesc')}
                   color="#ff0080"
                 />
                 <FeatureCard 
                   icon={Thermometer}
-                  title="Hémisphère Nord (vert)"
-                  description="Température de l'hémisphère nord, généralement plus variable"
+                  title={t('help.climateData.north')}
+                  description={t('help.climateData.northDesc')}
                   color="#00ff88"
                 />
                 <FeatureCard 
                   icon={Thermometer}
-                  title="Hémisphère Sud (orange)"
-                  description="Température de l'hémisphère sud, dominé par les océans"
+                  title={t('help.climateData.south')}
+                  description={t('help.climateData.southDesc')}
                   color="#ff8c00"
                 />
                 <FeatureCard 
                   icon={Database}
-                  title="ONI (bleu)"
-                  description="Indice océanique Niño - indicateur d'El Niño et La Niña"
+                  title={t('help.climateData.oni')}
+                  description={t('help.climateData.oniDesc')}
                   color="#00d4ff"
                 />
               </HelpSection>
 
               {/* Globe interactif */}
-              <HelpSection icon={Globe2} title="Globe interactif 3D" color="#00ff88">
+              <HelpSection icon={Globe2} title={t('help.globe.title')} color="#00ff88">
                 <FeatureCard 
                   icon={MousePointer}
-                  title="Rotation manuelle"
-                  description="Cliquez et faites glisser pour faire tourner le globe dans toutes les directions"
+                  title={t('help.globe.rotation')}
+                  description={t('help.globe.rotationDesc')}
                   color="#00ff88"
                 />
                 <FeatureCard 
                   icon={MousePointer}
-                  title="Zoom"
-                  description="Utilisez la molette de la souris ou le pincement sur mobile pour zoomer"
+                  title={t('help.globe.zoom')}
+                  description={t('help.globe.zoomDesc')}
                   color="#00ff88"
                 />
                 <FeatureCard 
                   icon={Globe2}
-                  title="Rotation automatique"
-                  description="Activez/désactivez la rotation automatique avec le bouton paramètres (⚙️)"
+                  title={t('help.globe.autoRotation')}
+                  description={t('help.globe.autoRotationDesc')}
                   color="#00ff88"
                 />
               </HelpSection>
 
               {/* Échelle des couleurs */}
-              <HelpSection icon={Palette} title="Échelle des températures" color="#ff8c00">
+              <HelpSection icon={Palette} title={t('help.colorScale.title')} color="#ff8c00">
                 <p style={{ marginBottom: '12px' }}>
-                  Les couleurs du globe représentent les anomalies de température :
+                  {t('help.colorScale.description')}
                 </p>
                 <div style={{
                   display: 'flex',
@@ -325,42 +327,41 @@ export default function HelpModal({ isOpen, onClose }) {
                   background: 'rgba(255, 255, 255, 0.05)',
                   borderRadius: '8px'
                 }}>
-                  <span style={{ color: '#6bb6ff', fontWeight: '600' }}>Bleu (-5°C)</span>
+                  <span style={{ color: '#6bb6ff', fontWeight: '600' }}>{t('help.colorScale.cold')}</span>
                   <div style={{
                     flex: 1,
                     height: '12px',
                     background: 'linear-gradient(to right, #0066cc 0%, #3399ff 20%, #66ccff 40%, #ffffff 50%, #ffcc66 60%, #ff9933 80%, #cc3300 100%)',
                     borderRadius: '6px'
                   }} />
-                  <span style={{ color: '#ff6666', fontWeight: '600' }}>Rouge (+5°C)</span>
+                  <span style={{ color: '#ff6666', fontWeight: '600' }}>{t('help.colorScale.hot')}</span>
                 </div>
                 <p style={{ fontSize: isMobile ? '12px' : '13px', color: '#bbb' }}>
-                  Les zones bleues sont plus froides que la moyenne 1951-1980, les zones rouges sont plus chaudes.
-                  Le blanc représente des températures proches de la normale.
+                  {t('help.colorScale.explanation')}
                 </p>
               </HelpSection>
 
               {/* Table de données */}
-              <HelpSection icon={Database} title="Table de données interactive" color="#ffc107">
+              <HelpSection icon={Database} title={t('help.dataTable.title')} color="#ffc107">
                 <p style={{ marginBottom: '12px' }}>
-                  Explorez les données sous forme de tableau dans la section "Données" :
+                  {t('help.dataTable.description')}
                 </p>
                 <FeatureCard 
                   icon={Database}
-                  title="Sélection de région"
-                  description="Choisissez entre Global, Hémisphère Nord ou Hémisphère Sud dans le menu déroulant"
+                  title={t('help.dataTable.regionSelection')}
+                  description={t('help.dataTable.regionDesc')}
                   color="#ffc107"
                 />
                 <FeatureCard 
                   icon={MousePointer}
-                  title="Tri des colonnes"
-                  description="Cliquez sur n'importe quel en-tête de colonne pour trier (ex: mois du plus chaud au plus froid)"
+                  title={t('help.dataTable.columnSort')}
+                  description={t('help.dataTable.columnSortDesc')}
                   color="#ffc107"
                 />
                 <FeatureCard 
                   icon={Palette}
-                  title="Code couleur"
-                  description="Les cellules sont colorées : rouge pour les anomalies chaudes, bleu pour les froides"
+                  title={t('help.dataTable.colorCode')}
+                  description={t('help.dataTable.colorCodeDesc')}
                   color="#ffc107"
                 />
                 <p style={{ 
@@ -369,22 +370,22 @@ export default function HelpModal({ isOpen, onClose }) {
                   fontStyle: 'italic',
                   marginTop: '12px'
                 }}>
-                  💡 Astuce : Cliquez sur "Jan", "Feb", etc. pour voir quels mois ont été les plus chauds une année donnée !
+                  {t('help.dataTable.tip')}
                 </p>
               </HelpSection>
 
               {/* Sources */}
-              <HelpSection icon={ExternalLink} title="Sources des données" color="#9c27b0">
+              <HelpSection icon={ExternalLink} title={t('help.sources.title')} color="#9c27b0">
                 <FeatureCard 
                   icon={Database}
-                  title="NASA GISTEMP"
-                  description="Données de température de surface terrestre et océanique (GISS)"
+                  title={t('help.sources.nasa')}
+                  description={t('help.sources.nasaDesc')}
                   color="#9c27b0"
                 />
                 <FeatureCard 
                   icon={Database}
-                  title="NOAA CPC"
-                  description="Indices océaniques Niño (ONI) pour El Niño/La Niña"
+                  title={t('help.sources.noaa')}
+                  description={t('help.sources.noaaDesc')}
                   color="#9c27b0"
                 />
                 <p style={{ 
@@ -393,7 +394,7 @@ export default function HelpModal({ isOpen, onClose }) {
                   fontStyle: 'italic',
                   marginTop: '12px'
                 }}>
-                  Toutes les données sont automatiquement mises à jour et mises en cache pour de meilleures performances.
+                  {t('help.sources.note')}
                 </p>
               </HelpSection>
 

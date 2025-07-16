@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function DataTable({ initialData }) {
   const [tableData, setTableData] = useState(initialData);
   const [sortOrder, setSortOrder] = useState({});
   const [source, setSource] = useState('global');
   const [reference, setReference] = useState('nasa');
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function fetchData() {
@@ -55,7 +57,7 @@ export default function DataTable({ initialData }) {
   };
 
   if (!tableData || tableData.length < 2) {
-    return <p>Données en cours de chargement ou indisponibles...</p>;
+    return <p>{t('table.loading')}</p>;
   }
 
   const header = tableData[0];
@@ -65,20 +67,20 @@ export default function DataTable({ initialData }) {
     <div style={{ overflowX: 'auto' }}>
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
         <div>
-          <label htmlFor="source">Choisir la région : </label>
+          <label htmlFor="source">{t('table.chooseRegion')} </label>
           <select id="source" value={source} onChange={(e) => setSource(e.target.value)}>
-            <option value="global">Global</option>
-            <option value="north">Hémisphère Nord</option>
-            <option value="south">Hémisphère Sud</option>
+            <option value="global">{t('table.global')}</option>
+            <option value="north">{t('table.north')}</option>
+            <option value="south">{t('table.south')}</option>
           </select>
         </div>
         
         <div>
-          <label htmlFor="reference">Période de référence : </label>
+          <label htmlFor="reference">{t('table.referencePeriod')} </label>
           <select id="reference" value={reference} onChange={(e) => setReference(e.target.value)}>
-            <option value="nasa">1951-1980 (NASA)</option>
-            <option value="preindustrial">1880-1899 (Préindustriel)</option>
-            <option value="modern">1991-2020 (Moderne)</option>
+            <option value="nasa">{t('table.nasa')}</option>
+            <option value="preindustrial">{t('table.preindustrial')}</option>
+            <option value="modern">{t('table.modern')}</option>
           </select>
         </div>
       </div>

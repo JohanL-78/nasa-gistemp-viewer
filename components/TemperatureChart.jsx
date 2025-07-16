@@ -77,26 +77,34 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const ChartControls = ({ month, onMonthChange, reference, onReferenceChange, source, onSourceChange, viewType, onViewTypeChange, onExport }) => {
+const ChartControls = ({ month, onMonthChange, reference, onReferenceChange, source, onSourceChange, viewType, onViewTypeChange, onExport, translations }) => {
   const isMobile = useIsMobile();
 
   const months = [
-    { value: 1, name: 'Janvier' }, { value: 2, name: 'Février' }, { value: 3, name: 'Mars' },
-    { value: 4, name: 'Avril' }, { value: 5, name: 'Mai' }, { value: 6, name: 'Juin' },
-    { value: 7, name: 'Juillet' }, { value: 8, name: 'Août' }, { value: 9, name: 'Septembre' },
-    { value: 10, name: 'Octobre' }, { value: 11, name: 'Novembre' }, { value: 12, name: 'Décembre' }
+    { value: 1, name: translations?.monthNames?.[1] || 'January' }, 
+    { value: 2, name: translations?.monthNames?.[2] || 'February' }, 
+    { value: 3, name: translations?.monthNames?.[3] || 'March' },
+    { value: 4, name: translations?.monthNames?.[4] || 'April' }, 
+    { value: 5, name: translations?.monthNames?.[5] || 'May' }, 
+    { value: 6, name: translations?.monthNames?.[6] || 'June' },
+    { value: 7, name: translations?.monthNames?.[7] || 'July' }, 
+    { value: 8, name: translations?.monthNames?.[8] || 'August' }, 
+    { value: 9, name: translations?.monthNames?.[9] || 'September' },
+    { value: 10, name: translations?.monthNames?.[10] || 'October' }, 
+    { value: 11, name: translations?.monthNames?.[11] || 'November' }, 
+    { value: 12, name: translations?.monthNames?.[12] || 'December' }
   ];
 
   const references = [
-    { value: 'nasa', name: '1951-1980 (NASA)' },
-    { value: 'preindustrial', name: '1880-1899 (Préindustriel)' },
-    { value: 'modern', name: '1991-2020 (Moderne)' }
+    { value: 'nasa', name: translations?.referenceNasa || '1951-1980 (NASA)' },
+    { value: 'preindustrial', name: translations?.referencePreindustrial || '1880-1899 (Pre-industrial)' },
+    { value: 'modern', name: translations?.referenceModern || '1991-2020 (Modern)' }
   ];
 
   const sources = [
-    { value: 'global', name: 'Global' },
-    { value: 'north', name: 'Hémisphère Nord' },
-    { value: 'south', name: 'Hémisphère Sud' }
+    { value: 'global', name: translations?.global || 'Global' },
+    { value: 'north', name: translations?.north || 'Northern Hemisphere' },
+    { value: 'south', name: translations?.south || 'Southern Hemisphere' }
   ];
 
   return (
@@ -125,8 +133,8 @@ const ChartControls = ({ month, onMonthChange, reference, onReferenceChange, sou
             outline: 'none'
           }}
         >
-          <option value="monthly" style={{ background: '#1a1a2e', color: '#fff' }}>Mensuel</option>
-          <option value="annual" style={{ background: '#1a1a2e', color: '#fff' }}>Annuel</option>
+          <option value="monthly" style={{ background: '#1a1a2e', color: '#fff' }}>{translations?.monthly || 'Monthly'}</option>
+          <option value="annual" style={{ background: '#1a1a2e', color: '#fff' }}>{translations?.annual || 'Annual'}</option>
         </select>
       </div>
 
@@ -220,15 +228,52 @@ const ChartControls = ({ month, onMonthChange, reference, onReferenceChange, sou
         }}
       >
         <Download size={14} />
-        Export
+        {translations?.export || 'Export'}
       </motion.button>
     </div>
   );
 };
 
-export default function TemperatureChart({ isOpen, onClose, tableData, currentMonth }) {
+// Composant tooltip avec traductions passées en props
+const SimpleTooltip = ({ active, payload, label, currentYearText }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div
+        style={{
+          background: 'rgba(0, 0, 0, 0.9)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: '12px',
+          padding: '12px 16px',
+          color: '#fff',
+          fontSize: '13px',
+          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.4)'
+        }}
+      >
+        <div style={{ fontWeight: '600', marginBottom: '4px', color: '#64b5f6' }}>
+          {label} {data.isCurrentYear && <span style={{ color: '#ffc107', fontSize: '11px' }}>{currentYearText}</span>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: payload[0].color,
+            border: data.isCurrentYear ? '2px solid #ffc107' : 'none'
+          }} />
+          <span>{payload[0].value !== null ? `${payload[0].value.toFixed(2)}°C` : 'N/A'}</span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+export default function TemperatureChart({ isOpen, onClose, tableData, currentMonth, translations }) {
   const isMobile = useIsMobile();
   const [month, setMonth] = useState(currentMonth || 1);
+  
   const [reference, setReference] = useState('nasa');
   const [source, setSource] = useState('global');
   const [viewType, setViewType] = useState('monthly'); // 'monthly' ou 'annual'
@@ -279,17 +324,17 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
         const currentYear = new Date().getFullYear();
         
         if (viewType === 'monthly') {
-          if (year === 1883 && month === 8) notable = "Éruption Krakatoa";
-          if (year === 1991 && month === 6) notable = "Éruption Mont Pinatubo";
-          if (year === 2016 && month >= 1 && month <= 4) notable = "El Niño intense";
-          if (year === 1998 && month >= 1 && month <= 6) notable = "El Niño record";
+          if (year === 1883 && month === 8) notable = translations?.krakatoa || 'Krakatoa Eruption';
+          if (year === 1991 && month === 6) notable = translations?.pinatubo || 'Mount Pinatubo Eruption';
+          if (year === 2016 && month >= 1 && month <= 4) notable = translations?.elNinoIntense || 'Intense El Niño';
+          if (year === 1998 && month >= 1 && month <= 6) notable = translations?.elNinoRecord || 'Record El Niño';
           
         } else {
           // Annotations pour vue annuelle
-          if (year === 1883) notable = "Éruption Krakatoa";
-          if (year === 1991) notable = "Éruption Mont Pinatubo";
-          if (year === 2016) notable = "El Niño intense";
-          if (year === 1998) notable = "El Niño record";
+          if (year === 1883) notable = translations?.krakatoa || 'Krakatoa Eruption';
+          if (year === 1991) notable = translations?.pinatubo || 'Mount Pinatubo Eruption';
+          if (year === 2016) notable = translations?.elNinoIntense || 'Intense El Niño';
+          if (year === 1998) notable = translations?.elNinoRecord || 'Record El Niño';
           
         }
 
@@ -351,8 +396,13 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
   const exportChart = async () => {
     if (!chartRef.current) return;
     
-    const monthNames = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    const filename = `anomalies-${viewType === 'annual' ? 'annuelles' : monthNames[month]}-${source}-${reference}.png`;
+    const monthNames = ['', 
+      translations?.monthNames?.[1] || 'January', translations?.monthNames?.[2] || 'February', translations?.monthNames?.[3] || 'March',
+      translations?.monthNames?.[4] || 'April', translations?.monthNames?.[5] || 'May', translations?.monthNames?.[6] || 'June',
+      translations?.monthNames?.[7] || 'July', translations?.monthNames?.[8] || 'August', translations?.monthNames?.[9] || 'September',
+      translations?.monthNames?.[10] || 'October', translations?.monthNames?.[11] || 'November', translations?.monthNames?.[12] || 'December'
+    ];
+    const filename = `anomalies-${viewType === 'annual' ? 'annual' : monthNames[month]}-${source}-${reference}.png`;
     
     try {
       // Capturer l'élément du graphique
@@ -390,7 +440,12 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
     }
   };
 
-  const monthNames = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  const monthNames = ['', 
+    translations?.monthNames?.[1] || 'January', translations?.monthNames?.[2] || 'February', translations?.monthNames?.[3] || 'March',
+    translations?.monthNames?.[4] || 'April', translations?.monthNames?.[5] || 'May', translations?.monthNames?.[6] || 'June',
+    translations?.monthNames?.[7] || 'July', translations?.monthNames?.[8] || 'August', translations?.monthNames?.[9] || 'September',
+    translations?.monthNames?.[10] || 'October', translations?.monthNames?.[11] || 'November', translations?.monthNames?.[12] || 'December'
+  ];
 
   return (
     <AnimatePresence>
@@ -468,14 +523,14 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
                 </motion.div>
                 <div>
                   <h2 style={{ margin: 0, fontSize: isMobile ? '18px' : '22px', fontWeight: '700' }}>
-                    {viewType === 'annual' ? 'Anomalies Annuelles' : `Anomalies de ${monthNames[month]}`}
+                    {viewType === 'annual' ? (translations?.annualAnomalies || 'Annual Anomalies') : `${translations?.monthlyAnomalies || 'Anomalies for'} ${monthNames[month]}`}
                   </h2>
                   <p style={{ margin: 0, fontSize: '14px', color: '#bbb' }}>
-                    {source === 'global' ? 'Global' : source === 'north' ? 'Hémisphère Nord' : 'Hémisphère Sud'} • 1880-{new Date().getFullYear()}
-                    {viewType === 'annual' && <span style={{ color: '#ffc107' }}> • Année courante ({new Date().getFullYear()}) en surbrillance</span>}
+                    {source === 'global' ? 'Global' : source === 'north' ? 'Northern Hemisphere' : 'Southern Hemisphere'} • 1880-{new Date().getFullYear()}
+                    {viewType === 'annual' && <span style={{ color: '#ffc107' }}> • Current year ({new Date().getFullYear()}) highlighted</span>}
                   </p>
                   <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#888' }}>
-                    Graphique issu de{' '}
+                    Chart from{' '}
                     <a 
                       href="https://nasa-gistemp-viewer.vercel.app" 
                       target="_blank" 
@@ -528,6 +583,7 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
               viewType={viewType}
               onViewTypeChange={setViewType}
               onExport={exportChart}
+              translations={translations}
             />
 
             {/* Graphique */}
@@ -555,7 +611,7 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
                   >
                     <BarChart3 size={24} color="#64b5f6" />
                   </motion.div>
-                  Chargement des données...
+                  {translations?.loadingData || 'Loading data...'}
                 </div>
               ) : processChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -585,7 +641,7 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
                         style: { textAnchor: 'middle', fill: '#888' }
                       }}
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<SimpleTooltip currentYearText={translations?.currentYearTooltip || "(Current year)"} />} />
                     <ReferenceLine 
                       y={0} 
                       stroke="rgba(255, 255, 255, 0.5)" 
@@ -634,7 +690,7 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
                   color: '#888',
                   fontSize: '16px'
                 }}>
-                  Chargement des données...
+                  {translations?.loadingData || 'Loading data...'}
                 </div>
               )}
             </div>
@@ -697,9 +753,9 @@ export default function TemperatureChart({ isOpen, onClose, tableData, currentMo
               };
               
               const trends = [
-                { label: 'Tendance/décennie 1880', value: calculateTrendPerDecade(processChartData, 1880), color: '#ff6b6b' },
-                { label: 'Tendance/décennie 1950', value: calculateTrendPerDecade(processChartData, 1950), color: '#ffc107' },
-                { label: 'Tendance/décennie 2000', value: calculateTrendPerDecade(processChartData, 2000), color: '#ff4444' }
+                { label: `${translations?.trendPerDecade || 'Trend/decade'} 1880`, value: calculateTrendPerDecade(processChartData, 1880), color: '#ff6b6b' },
+                { label: `${translations?.trendPerDecade || 'Trend/decade'} 1950`, value: calculateTrendPerDecade(processChartData, 1950), color: '#ffc107' },
+                { label: `${translations?.trendPerDecade || 'Trend/decade'} 2000`, value: calculateTrendPerDecade(processChartData, 2000), color: '#ff4444' }
               ];
               
               return (
